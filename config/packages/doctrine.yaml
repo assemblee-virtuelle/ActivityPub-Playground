@@ -19,7 +19,7 @@ doctrine:
     orm:
         auto_generate_proxy_classes: true
         naming_strategy: doctrine.orm.naming_strategy.underscore
-        auto_mapping: true
+        auto_mapping: false
         mappings:
             App:
                 is_bundle: false
@@ -27,3 +27,9 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'App\Entity'
                 alias: App
+            AsType:
+                is_bundle: false
+                type: xml
+                dir: '%kernel.project_dir%/lib/ActivityPubBundle/Resources/config/doctrine'
+                prefix: 'ActivityPub\Type'
+                alias: AsType
