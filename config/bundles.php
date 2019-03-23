@@ -14,5 +14,5 @@ return [
     Symfony\Bundle\DebugBundle\DebugBundle::class => ['dev' => true, 'test' => true],
     Symfony\Bundle\MakerBundle\MakerBundle::class => ['dev' => true],
     Symfony\Bundle\WebServerBundle\WebServerBundle::class => ['dev' => true],
-    \AV\ActivitypubBundle\ActivitypubBundle::class => ['all' => true]
+    \AV\ActivityPubBundle\ActivityPubBundle::class => ['all' => true]
 ];
