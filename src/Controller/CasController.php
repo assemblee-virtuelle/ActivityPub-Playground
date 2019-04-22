@@ -20,10 +20,6 @@ class CasController extends AbstractController
         \phpCAS::forceAuthentication();
         if (\phpCAS::isAuthenticated()) {
             $userAttributes = \phpCAS::getAttributes();
-//            var_dump($userAttributes);
-            $redirectUrl = $request->query->get('redirectUrl');
-            if( !$redirectUrl ) throw new \Exception('No redirectUrl found');
-            return $this->redirect($redirectUrl . '?token=MYTOKEN');
 
 //          'uid' => string '60534' (length=5)
 //          'uuid' => string '08b07984-bbbd-47fd-8fc6-d1582f1c0d56' (length=36)
@@ -51,6 +47,10 @@ class CasController extends AbstractController
 //          'field_lat_lon' => string '{"value":"POINT(2.468857 49.195031)","geo_type":"Point","lat":49.195031,"lon":2.468857,"left":2.468857,"top":49.195031,"right":2.468857,"bottom":49.195031,"geohash":"u09zb5tvbd3n","latlon":"49.195031,2.468857"}' (length=210)
 //          'field_learning360_id' => string '5ba4b635c8837d17198348cb' (length=24)
 //          'field_newsletter_colibris' => string '0' (length=1)
+
+            $redirectUrl = $request->query->get('redirectUrl');
+            if( !$redirectUrl ) throw new \Exception('No redirectUrl found');
+            return $this->redirect($redirectUrl . '?token=MYTOKEN');
         }
     }
 }
