@@ -50,7 +50,7 @@ class CasController extends AbstractController
 
             $redirectUrl = $request->query->get('redirectUrl');
             if( !$redirectUrl ) throw new \Exception('No redirectUrl found');
-            return $this->redirect($redirectUrl . '?token=MYTOKEN');
+            return $this->redirect($redirectUrl . '?token=MYTOKEN&email=' . $userAttributes['mail']);
         }
     }
 }
