@@ -11,7 +11,7 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
-        # All api routes require a JWT token
+        # All API routes require a JWT token
         api:
             pattern:   ^/api
             stateless: true

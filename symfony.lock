@@ -1,4 +1,7 @@
 {
+    "alymosul/exponent-server-sdk-php": {
+        "version": "v1.1.2"
+    },
     "doctrine/annotations": {
         "version": "1.0",
         "recipe": {
