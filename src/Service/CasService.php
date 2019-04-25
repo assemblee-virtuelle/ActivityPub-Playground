@@ -6,7 +6,9 @@ class CasService
 {
     public function __construct(string $casHost, int $casPort, string $casPath)
     {
-        \phpCAS::setDebug(false);
+        \phpCAS::setDebug('cas-debug.log');
+        \phpCAS::setVerbose(true);
+
         \phpCAS::client(CAS_VERSION_2_0, $casHost, $casPort, $casPath, true);
         \phpCAS::setNoCasServerValidation();
         \phpCAS::setLang(PHPCAS_LANG_FRENCH);
