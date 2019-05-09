@@ -31,3 +31,7 @@ services:
             $casHost: '%env(CAS_HOST)%'
             $casPort: '%env(CAS_PORT)%'
             $casPath: '%env(CAS_PATH)%'
+
+    App\Service\ActivityPubService:
+        arguments:
+            $serverUrl: '%env(SERVER_URL)%'
