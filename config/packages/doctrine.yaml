@@ -16,6 +16,16 @@ doctrine:
             collate: utf8mb4_unicode_ci
 
         url: '%env(resolve:DATABASE_URL)%'
+
+        # ENUM is not understood by MySQL
+        mapping_types:
+            enum: string
+
+        types:
+            activity_type: App\DbType\ActivityType
+            activity_object_type: App\DbType\ActivityObjectType
+            actor_type: App\DbType\ActorType
+
     orm:
         auto_generate_proxy_classes: true
         naming_strategy: doctrine.orm.naming_strategy.underscore

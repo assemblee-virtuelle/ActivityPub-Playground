@@ -5,11 +5,10 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Service\CasService;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class CasController extends AbstractController
+class CasController extends BaseController
 {
     /**
      * @Route("/cas/login", name="cas_login")

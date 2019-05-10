@@ -3,35 +3,22 @@
 namespace App\Controller;
 
 use App\Service\PushService;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class PushController extends AbstractController
+class PushController extends BaseController
 {
-    protected function parseRequestBodyAsJson(Request $request): ParameterBag
-    {
-        $content = $request->getContent();
-
-        $params = !empty($content)
-            ? json_decode($content, true)
-            : [];
-
-        return new ParameterBag($params);
-    }
-
     /**
-     * @Route("/api/device", name="add_device")
+     * @Route("/device", name="add_device", methods={"POST"})
      */
     public function addDeviceAction(Request $request, PushService $pushService)
     {
         $user = $this->getUser();
-        $params = $this->parseRequestBodyAsJson($request);
+        $params = $this->parseBodyAsJson($request);
 
-        $pushService->subscribe($user, $params->get('deviceToken'));
+        $pushService->subscribe($user, $params['deviceToken']);
 
-        return new JsonResponse(['success' => true]);
+        return new Response(null, Response::HTTP_CREATED );
     }
 }

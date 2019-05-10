@@ -3,26 +3,14 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use phpDocumentor\Reflection\Types\This;
-use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity
- * @UniqueEntity(fields="email", message="Email already taken")
- * @UniqueEntity(fields="username", message="Username already taken")
  * @ORM\Table(name="user")
  */
-
-class User implements UserInterface
+class User extends Actor implements UserInterface
 {
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     */
-    private $id;
-
     /**
      * @ORM\Column(type="string", length=36, unique=true)
      */
@@ -32,11 +20,6 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=255, unique=true)
      */
     private $email;
-
-    /**
-     * @ORM\Column(type="string", length=255, unique=true)
-     */
-    private $username;
 
     /**
      * The below length depends on the "algorithm" you use for encoding
@@ -61,19 +44,11 @@ class User implements UserInterface
      */
     private $lastName;
 
-    public function __construct()     {
+    public function __construct()
+    {
         $this->roles = array('ROLE_USER');
-    }
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function setId($id)
-    {
-        $this->id = $id;
-        return $this;
+        $this->type = 'Person';
+        parent::__construct();
     }
 
     public function getUuid()
@@ -95,17 +70,6 @@ class User implements UserInterface
     public function setEmail($email)
     {
         $this->email = $email;
-        return $this;
-    }
-
-    public function getUsername()
-    {
-        return $this->username;
-    }
-
-    public function setUsername($username)
-    {
-        $this->username = $username;
         return $this;
     }
 
