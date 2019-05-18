@@ -8,6 +8,7 @@ use App\Entity\Activity;
 use App\Entity\ActivityObject;
 use App\Entity\Actor;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -128,17 +129,23 @@ class ActivityPubService
     }
 
     public function getObjectUri($object) {
-        switch( get_class($object) ) {
+        switch( ClassUtils::getClass($object) ) {
             case 'App\Entity\Activity':
                 return $this->serverBaseUrl . '/activity/' . $object->getId();
                 break;
 
+            case 'App\Entity\ActivityObject':
+                return $this->serverBaseUrl . '/object/' . strtolower($object->getType()) . '/' . $object->getId();
+                break;
+
             case 'App\Entity\Actor':
+            case 'App\Entity\Application':
+            case 'App\Entity\User':
                 return $this->serverBaseUrl . '/actor/' . $object->getUsername();
                 break;
 
             default:
-                throw new BadRequestHttpException("Unknown object : " . get_class($object) );
+                throw new BadRequestHttpException("Unknown object : " . ClassUtils::getClass($object) );
         }
     }
 }
