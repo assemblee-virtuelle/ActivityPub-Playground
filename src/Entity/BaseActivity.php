@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use App\DbType\ActivityType;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -10,31 +9,16 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  * @ORM\Table(name="activity")
  */
-class Activity
+class BaseActivity extends AbstractObject
 {
     /**
-     * @ORM\Id
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
-    private $id;
-
-    /**
-     * @see ActivityType
-     *
-     * @var string
-     * @ORM\Column(name="type", type="activity_type")
-     */
-    private $type;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="Actor", inversedBy="outboxActivities")
+     * @ORM\ManyToOne(targetEntity="BaseActor", inversedBy="outboxActivities")
      */
     private $actor;
 
     /**
      * Many Activities are posted to many Actors's inboxes
-     * @ORM\ManyToMany(targetEntity="Actor", inversedBy="inboxActivities")
+     * @ORM\ManyToMany(targetEntity="BaseActor", inversedBy="inboxActivities")
      * @ORM\JoinTable(name="activity_receiving_actor")
      */
     private $receivingActors;
@@ -46,7 +30,7 @@ class Activity
 
     /**
      * Each Activity has one or zero Object
-     * @ORM\OneToOne(targetEntity="ActivityObject", inversedBy="activity", cascade={"persist"})
+     * @ORM\OneToOne(targetEntity="AbstractObject", cascade={"persist"})
      */
     private $object;
 
@@ -54,33 +38,6 @@ class Activity
     {
         $this->isPublic = false;
         $this->receivingActors = new ArrayCollection();
-    }
-
-    public function __toString()
-    {
-        return "Activity " . $this->getType() . " #" . $this->getId();
-    }
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function setId($id)
-    {
-        $this->id = $id;
-        return $this;
-    }
-
-    public function getType(): string
-    {
-        return $this->type;
-    }
-
-    public function setType(string $type): Activity
-    {
-        $this->type = $type;
-        return $this;
     }
 
     public function getActor()
@@ -99,7 +56,7 @@ class Activity
         return $this->receivingActors;
     }
 
-    public function addReceivingActor(Actor $actor)
+    public function addReceivingActor(BaseActor $actor)
     {
         if (!$this->receivingActors->contains($actor)) {
             $actor->addInboxActivity($this);
@@ -108,7 +65,7 @@ class Activity
         return $this;
     }
 
-    public function removeActorInbox(Actor $actor)
+    public function removeActorInbox(BaseActor $actor)
     {
         if ($this->receivingActors->contains($actor)) {
             $this->receivingActors->removeElement($actor);

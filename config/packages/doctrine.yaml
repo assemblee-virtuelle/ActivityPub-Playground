@@ -23,7 +23,7 @@ doctrine:
 
         types:
             activity_type: App\DbType\ActivityType
-            activity_object_type: App\DbType\ActivityObjectType
+            object_type: App\DbType\ObjectType
             actor_type: App\DbType\ActorType
 
     orm:

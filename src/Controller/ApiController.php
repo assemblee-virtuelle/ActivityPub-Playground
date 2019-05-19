@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\Application;
+use App\Entity\Actor\Application;
 use App\Service\ActivityPubService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,7 +21,7 @@ class ApiController extends BaseController
         $json = $this->parseBodyAsJson($request);
 
         if( !$json ) {
-            throw new BadRequestHttpException("You must POST a JSON object to this endpoint");
+            throw new BadRequestHttpException("You must POST a valid JSON object to this endpoint");
         }
 
         $activity = $activityPubService->handleActivity($json, $application);

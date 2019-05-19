@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Actor;
 
+use App\DbType\ActorType;
+use App\Entity\BaseActor;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -9,7 +11,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\Entity
  * @ORM\Table(name="user")
  */
-class User extends Actor implements UserInterface
+class User extends BaseActor implements UserInterface
 {
     /**
      * @ORM\Column(type="string", length=36, unique=true)
@@ -47,7 +49,7 @@ class User extends Actor implements UserInterface
     public function __construct()
     {
         $this->roles = array('ROLE_USER');
-        $this->type = 'Person';
+        $this->type = ActorType::PERSON;
         parent::__construct();
     }
 

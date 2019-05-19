@@ -2,41 +2,48 @@
 
 namespace App\Service;
 
-use App\DbType\ActivityObjectType;
+use App\DbType\ActorType;
+use App\DbType\ObjectType;
 use App\DbType\ActivityType;
-use App\Entity\Activity;
-use App\Entity\ActivityObject;
-use App\Entity\Actor;
+use App\Entity\BaseActivity;
+use App\Entity\BaseActor;
+use App\Entity\BaseObject;
+use App\Entity\Actor\Organization;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class ActivityPubService
 {
     protected $em;
 
+    protected $authorizationChecker;
+
     protected $serverBaseUrl;
 
     public const PUBLIC_POST_URI = 'https://www.w3.org/ns/activitystreams#Public';
 
-    public function __construct(EntityManagerInterface $em, string $serverBaseUrl)
+    public function __construct(EntityManagerInterface $em, AuthorizationCheckerInterface $authorizationChecker, string $serverBaseUrl)
     {
         $this->em = $em;
+        $this->authorizationChecker = $authorizationChecker;
         $this->serverBaseUrl = $serverBaseUrl;
     }
 
-    public function handleActivity(array $json, Actor $actor) : Activity
+    public function handleActivity(array $json, BaseActor $actor) : BaseActivity
     {
         if( $json['@context'] !== 'https://www.w3.org/ns/activitystreams' ) {
             throw new BadRequestHttpException("Only ActivityStreams objects are allowed");
         }
 
-        // If an object is passed directly, wrap it inside a Create activity
-        if( in_array($json['type'], ActivityObjectType::getValues()) ) {
+        // If an object or actor is passed directly, wrap it inside a Create activity
+        if( in_array($json['type'], ObjectType::getValues()) || in_array($json['type'], ActorType::getValues()) ) {
             $json = [
                 'type' => ActivityType::CREATE,
-                'to' => $json['to'],
+                'to' => isset($json['to']) ? $json['to'] : null,
                 'actor' => $json['attributedTo'],
                 'object' => $json
             ];
@@ -48,13 +55,17 @@ class ActivityPubService
             throw new BadRequestHttpException("Unknown activity type : $activityType");
         }
 
-        // VALIDATION
-        // Check that the actor and attributedTo field are the ID of the logged user
+        $actor = $this->getActorFromUri($json['actor']);
 
-        $activity = new Activity();
+        $activity = new BaseActivity();
         $activity
             ->setType($activityType)
             ->setActor($actor);
+
+        // Make sure the logged user has the right to post as the posting actor
+        if( !$this->authorizationChecker->isGranted($activityType, $activity) ) {
+            throw new UnauthorizedHttpException("You cannot post as {$actor->getUsername()}");
+        }
 
         //////////////////
         // SIDE EFFECTS
@@ -62,41 +73,16 @@ class ActivityPubService
 
         switch($activityType)
         {
-            case ActivityType::CREATE: {
-                // Create object
-                $object = new ActivityObject();
-                $object
-                    ->setType($json['object']['type'])
-                    ->setContent($json['object']['content']);
-                $activity->setObject($object);
-
-                // Forward activity
-                foreach( $json['object']['to'] as $actorUri ) {
-                    if( $actorUri === ActivityPubService::PUBLIC_POST_URI ) {
-                        $activity->setIsPublic(true);
-                    } elseif ( $followers = $this->getFollowersFromUri($actorUri) ) {
-                        foreach( $followers as $follower ) {
-                            $activity->addReceivingActor($follower);
-                        }
-                    } elseif ( $actor = $this->getActorFromUri($actorUri) ) {
-                        $activity->addReceivingActor($actor);
-                    } else {
-                        throw new BadRequestHttpException("Unknown actor URI : $actorUri");
-                    }
-                }
-
+            case ActivityType::CREATE:
+                $this->handleCreate($activity, $json['object']);
                 break;
-            }
 
-            case ActivityType::FOLLOW: {
-                $actorToFollow = $this->getActorFromUri($json['object']);
-                $actorToFollow->addFollower($actor);
+            case ActivityType::FOLLOW:
+                $this->handleFollow($activity, $json['object']);
                 break;
-            }
 
-            default: {
+            default:
                 throw new BadRequestHttpException("Unhandled activity : $activityType");
-            }
         }
 
         // TODO: notify followers
@@ -108,12 +94,59 @@ class ActivityPubService
         return $activity;
     }
 
-    public function getActorFromUri(string $uri) : Actor
+    protected function handleCreate(BaseActivity $activity, array $objectJson)
+    {
+        if( in_array($objectJson['type'], ObjectType::getValues()) ) {
+            $object = new BaseObject();
+            $object
+                ->setType($objectJson['type'])
+                ->setContent($objectJson['content']);
+        } elseif ( in_array($objectJson['type'], ActorType::getValues()) ) {
+            if( $objectJson['type']!==ActorType::ORGANIZATION )
+                throw new BadRequestHttpException("The only Actor which can be created is an Organization");
+
+            $object = new Organization();
+            $object
+                ->setUsername($objectJson['username'])
+                ->setSummary($objectJson['summary'])
+                ->addControllingActor($activity->getActor());
+        } else {
+            throw new BadRequestHttpException("Unhandled object : {$objectJson['type']}");
+        }
+
+        $activity->setObject($object);
+
+        // Forward activity
+        if( isset($objectJson['to']) ) {
+            foreach( $objectJson['to'] as $actorUri ) {
+                if( $actorUri === ActivityPubService::PUBLIC_POST_URI ) {
+                    $activity->setIsPublic(true);
+                } elseif ( $followers = $this->getFollowersFromUri($actorUri) ) {
+                    foreach( $followers as $follower ) {
+                        $activity->addReceivingActor($follower);
+                    }
+                } elseif ( $actor = $this->getActorFromUri($actorUri) ) {
+                    $activity->addReceivingActor($actor);
+                } else {
+                    throw new BadRequestHttpException("Unknown actor URI : $actorUri");
+                }
+            }
+        }
+    }
+
+    protected function handleFollow(BaseActivity $activity, string $objectJson)
+    {
+        $actorToFollow = $this->getActorFromUri($objectJson);
+        $actorToFollow->addFollower($activity->getActor());
+        $activity->setObject($activity->getActor());
+    }
+
+    public function getActorFromUri(string $uri) : BaseActor
     {
         preg_match('/\/actor\/(\w*)\//', $uri, $matches );
         if( !$matches ) return null;
-        /** @var Actor $actor */
-        $actor = $this->em->getRepository(Actor::class)
+        /** @var BaseActor $actor */
+        $actor = $this->em->getRepository(BaseActor::class)
             ->findOneBy(['username' => $matches[1]]);
         return $actor;
     }
@@ -122,25 +155,25 @@ class ActivityPubService
     {
         preg_match('/\/actor\/(\w*)\/followers/', $uri, $matches );
         if( !$matches ) return null;
-        /** @var Actor $actor */
-        $actor = $this->em->getRepository(Actor::class)
+        /** @var BaseActor $actor */
+        $actor = $this->em->getRepository(BaseActor::class)
             ->findOneBy(['username' => $matches[1]]);
         return $actor->getFollowers();
     }
 
     public function getObjectUri($object) {
         switch( ClassUtils::getClass($object) ) {
-            case 'App\Entity\Activity':
+            case 'App\Entity\BaseActivity':
                 return $this->serverBaseUrl . '/activity/' . $object->getId();
                 break;
 
-            case 'App\Entity\ActivityObject':
+            case 'App\Entity\BaseObject':
                 return $this->serverBaseUrl . '/object/' . strtolower($object->getType()) . '/' . $object->getId();
                 break;
 
-            case 'App\Entity\Actor':
-            case 'App\Entity\Application':
-            case 'App\Entity\User':
+            case 'App\Entity\Actor\Organization':
+            case 'App\Entity\Actor\Application':
+            case 'App\Entity\Actor\User':
                 return $this->serverBaseUrl . '/actor/' . $object->getUsername();
                 break;
 

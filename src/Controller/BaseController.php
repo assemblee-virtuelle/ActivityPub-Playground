@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class BaseController extends AbstractController
 {
-    protected function parseBodyAsJson(Request $request): array
+    protected function parseBodyAsJson(Request $request): ?array
     {
         $content = $request->getContent();
 

@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Actor;
 
+use App\DbType\ActorType;
+use App\Entity\BaseActor;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -9,7 +11,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\Entity
  * @ORM\Table(name="application")
  */
-class Application extends Actor implements UserInterface
+class Application extends BaseActor implements UserInterface
 {
     /**
      * @ORM\Column(type="string", length=16, unique=true)
@@ -18,7 +20,7 @@ class Application extends Actor implements UserInterface
 
     public function __construct()
     {
-        $this->type = 'Application';
+        $this->type = ActorType::APPLICATION;
         parent::__construct();
     }
 

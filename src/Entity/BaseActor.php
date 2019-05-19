@@ -8,19 +8,9 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="actor")
- * @ORM\InheritanceType("JOINED")
- * @ORM\DiscriminatorColumn(name="type", type="actor_type")
- * @ORM\DiscriminatorMap({"Person" = "User", "Application" = "Application"})
  */
-abstract class Actor
+abstract class BaseActor extends AbstractObject
 {
-    /**
-     * @ORM\Id
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
-    protected $id;
-
     /**
      * @ORM\Column(type="string", length=255, unique=true)
      */
@@ -32,12 +22,12 @@ abstract class Actor
     protected $summary;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Actor", mappedBy="following")
+     * @ORM\ManyToMany(targetEntity="BaseActor", mappedBy="following")
      */
     protected $followers;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Actor", inversedBy="followers")
+     * @ORM\ManyToMany(targetEntity="BaseActor", inversedBy="followers")
      * @ORM\JoinTable(
      *     name="following",
      *     joinColumns={@ORM\JoinColumn(name="follower", referencedColumnName="id")},
@@ -47,12 +37,12 @@ abstract class Actor
     protected $following;
 
     /**
-     * @ORM\OneToMany(targetEntity="Activity", mappedBy="owner")
+     * @ORM\OneToMany(targetEntity="BaseActivity", mappedBy="actor")
      */
     protected $outboxActivities;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Activity", mappedBy="receivingActors")
+     * @ORM\ManyToMany(targetEntity="BaseActivity", mappedBy="receivingActors")
      */
     protected $inboxActivities;
 
@@ -62,22 +52,6 @@ abstract class Actor
         $this->following = new ArrayCollection();
         $this->outboxActivities = new ArrayCollection();
         $this->inboxActivities = new ArrayCollection();
-    }
-
-    public function __toString()
-    {
-        return "Actor " . $this->getUsername();
-    }
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function setId($id)
-    {
-        $this->id = $id;
-        return $this;
     }
 
     public function getUsername()
@@ -107,7 +81,7 @@ abstract class Actor
         return $this->followers;
     }
 
-    public function addFollower(Actor $actor)
+    public function addFollower(BaseActor $actor)
     {
         if (!$this->followers->contains($actor)) {
             $actor->addFollowing($this);
@@ -116,7 +90,7 @@ abstract class Actor
         return $this;
     }
 
-    public function removeFollower(Actor $actor)
+    public function removeFollower(BaseActor $actor)
     {
         if ($this->followers->contains($actor)) {
             $actor->removeFollowing($this);
@@ -130,7 +104,7 @@ abstract class Actor
         return $this->following;
     }
 
-    public function addFollowing(Actor $actor)
+    public function addFollowing(BaseActor $actor)
     {
         if (!$this->following->contains($actor)) {
             $this->following[] = $actor;
@@ -138,7 +112,7 @@ abstract class Actor
         return $this;
     }
 
-    public function removeFollowing(Actor $actor)
+    public function removeFollowing(BaseActor $actor)
     {
         if ($this->following->contains($actor)) {
             $this->following->removeElement($actor);
@@ -151,7 +125,7 @@ abstract class Actor
         return $this->outboxActivities;
     }
 
-    public function addOutboxActivity(Activity $activity)
+    public function addOutboxActivity(BaseActivity $activity)
     {
         if (!$this->outboxActivities->contains($activity)) {
             $this->outboxActivities[] = $activity;
@@ -159,7 +133,7 @@ abstract class Actor
         return $this;
     }
 
-    public function removeOutboxActivity(Activity $activity)
+    public function removeOutboxActivity(BaseActivity $activity)
     {
         if ($this->outboxActivities->contains($activity)) {
             $this->outboxActivities->removeElement($activity);
@@ -172,7 +146,7 @@ abstract class Actor
         return $this->inboxActivities;
     }
 
-    public function addInboxActivity(Activity $activity)
+    public function addInboxActivity(BaseActivity $activity)
     {
         if (!$this->inboxActivities->contains($activity)) {
             $this->inboxActivities[] = $activity;
@@ -180,7 +154,7 @@ abstract class Actor
         return $this;
     }
 
-    public function removeInboxActivity(Activity $activity)
+    public function removeInboxActivity(BaseActivity $activity)
     {
         if ($this->inboxActivities->contains($activity)) {
             $this->inboxActivities->removeElement($activity);
