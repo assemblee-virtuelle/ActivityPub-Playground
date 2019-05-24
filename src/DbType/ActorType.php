@@ -15,4 +15,7 @@ class ActorType extends EnumType
     public const PERSON = 'Person';
 
     public const SERVICE = 'Service';
+
+    // TODO put this in a PairActorType extension
+    public const PROJECT = 'Project';
 }

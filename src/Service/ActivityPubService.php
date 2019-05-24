@@ -102,13 +102,14 @@ class ActivityPubService
                 ->setType($objectJson['type'])
                 ->setContent($objectJson['content']);
         } elseif ( in_array($objectJson['type'], ActorType::getValues()) ) {
-            if( $objectJson['type']!==ActorType::ORGANIZATION )
-                throw new BadRequestHttpException("The only Actor which can be created is an Organization");
+            if( !in_array($objectJson['type'], BaseActor::CONTROLLABLE_ACTORS) )
+                throw new BadRequestHttpException("This type of actor cannot be created");
 
-            $object = new Organization();
+            $object = new BaseActor();
             $object
+                ->setType($objectJson['type'])
                 ->setUsername($objectJson['username'])
-                ->setSummary($objectJson['summary'])
+                ->setName($objectJson['name'])
                 ->addControllingActor($activity->getActor());
         } else {
             throw new BadRequestHttpException("Unhandled object : {$objectJson['type']}");

@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  * @ORM\Table(name="activity")
  */
-class BaseActivity extends AbstractObject
+class BaseActivity extends BaseObject
 {
     /**
      * @ORM\ManyToOne(targetEntity="BaseActor", inversedBy="outboxActivities")
@@ -30,7 +30,7 @@ class BaseActivity extends AbstractObject
 
     /**
      * Each Activity has one or zero Object
-     * @ORM\OneToOne(targetEntity="AbstractObject", cascade={"persist"})
+     * @ORM\OneToOne(targetEntity="BaseObject", cascade={"persist"})
      */
     private $object;
 

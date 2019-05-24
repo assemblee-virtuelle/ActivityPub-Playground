@@ -41,7 +41,7 @@ class AddApplicationCommand extends Command
         $application = new Application();
         $application
             ->setUsername($username)
-            ->setSummary('Incoming webhook')
+            ->setName('Incoming webhook')
             ->setApiKey($apiKey);
 
         $this->em->persist($application);

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\DbType\ActorType;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -9,17 +10,14 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  * @ORM\Table(name="actor")
  */
-abstract class BaseActor extends AbstractObject
+class BaseActor extends BaseObject
 {
+    const CONTROLLABLE_ACTORS = [ ActorType::ORGANIZATION, ActorType::PROJECT ];
+
     /**
      * @ORM\Column(type="string", length=255, unique=true)
      */
     protected $username;
-
-    /**
-     * @ORM\Column(type="text")
-     */
-    protected $summary;
 
     /**
      * @ORM\ManyToMany(targetEntity="BaseActor", mappedBy="following")
@@ -46,12 +44,23 @@ abstract class BaseActor extends AbstractObject
      */
     protected $inboxActivities;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\BaseActor")
+     * @ORM\JoinTable(
+     *     name="authorization",
+     *     joinColumns={@ORM\JoinColumn(name="controlled_actor_id", referencedColumnName="id")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="controlling_actor_id", referencedColumnName="id")}
+     * )
+     */
+    protected $controllingActors;
+
     public function __construct()
     {
         $this->followers = new ArrayCollection();
         $this->following = new ArrayCollection();
         $this->outboxActivities = new ArrayCollection();
         $this->inboxActivities = new ArrayCollection();
+        $this->controllingActors = new ArrayCollection();
     }
 
     public function getUsername()
@@ -160,5 +169,31 @@ abstract class BaseActor extends AbstractObject
             $this->inboxActivities->removeElement($activity);
         }
         return $this;
+    }
+
+    public function getControllingActors()
+    {
+        return $this->controllingActors;
+    }
+
+    public function addControllingActor(BaseActor $actor)
+    {
+        if (!$this->hasControllingActor($actor)) {
+            $this->controllingActors[] = $actor;
+        }
+        return $this;
+    }
+
+    public function removeControllingActor(BaseActor $actor)
+    {
+        if ($this->hasControllingActor($actor)) {
+            $this->controllingActors->removeElement($actor);
+        }
+        return $this;
+    }
+
+    public function hasControllingActor(BaseActor $actor)
+    {
+        return $this->controllingActors->contains($actor);
     }
 }
