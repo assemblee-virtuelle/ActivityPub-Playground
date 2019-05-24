@@ -5,10 +5,9 @@ namespace App\Service;
 use App\DbType\ActorType;
 use App\DbType\ObjectType;
 use App\DbType\ActivityType;
-use App\Entity\BaseActivity;
-use App\Entity\BaseActor;
+use App\Entity\Activity;
+use App\Entity\Actor;
 use App\Entity\BaseObject;
-use App\Entity\Actor\Organization;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManagerInterface;
@@ -33,7 +32,7 @@ class ActivityPubService
         $this->serverBaseUrl = $serverBaseUrl;
     }
 
-    public function handleActivity(array $json, BaseActor $actor) : BaseActivity
+    public function handleActivity(array $json, Actor $actor) : Activity
     {
         if( $json['@context'] !== 'https://www.w3.org/ns/activitystreams' ) {
             throw new BadRequestHttpException("Only ActivityStreams objects are allowed");
@@ -57,7 +56,7 @@ class ActivityPubService
 
         $actor = $this->getActorFromUri($json['actor']);
 
-        $activity = new BaseActivity();
+        $activity = new Activity();
         $activity
             ->setType($activityType)
             ->setActor($actor);
@@ -94,26 +93,25 @@ class ActivityPubService
         return $activity;
     }
 
-    protected function handleCreate(BaseActivity $activity, array $objectJson)
+    protected function handleCreate(Activity $activity, array $objectJson)
     {
         if( in_array($objectJson['type'], ObjectType::getValues()) ) {
             $object = new BaseObject();
-            $object
-                ->setType($objectJson['type'])
-                ->setContent($objectJson['content']);
         } elseif ( in_array($objectJson['type'], ActorType::getValues()) ) {
-            if( !in_array($objectJson['type'], BaseActor::CONTROLLABLE_ACTORS) )
+            if( !in_array($objectJson['type'], Actor::CONTROLLABLE_ACTORS) )
                 throw new BadRequestHttpException("This type of actor cannot be created");
-
-            $object = new BaseActor();
+            $object = new Actor();
             $object
-                ->setType($objectJson['type'])
                 ->setUsername($objectJson['username'])
-                ->setName($objectJson['name'])
                 ->addControllingActor($activity->getActor());
         } else {
             throw new BadRequestHttpException("Unhandled object : {$objectJson['type']}");
         }
+
+        $object
+            ->setType($objectJson['type'])
+            ->setName($objectJson['name'])
+            ->setContent($objectJson['content']);
 
         $activity->setObject($object);
 
@@ -135,19 +133,19 @@ class ActivityPubService
         }
     }
 
-    protected function handleFollow(BaseActivity $activity, string $objectJson)
+    protected function handleFollow(Activity $activity, string $objectJson)
     {
         $actorToFollow = $this->getActorFromUri($objectJson);
         $actorToFollow->addFollower($activity->getActor());
         $activity->setObject($activity->getActor());
     }
 
-    public function getActorFromUri(string $uri) : BaseActor
+    public function getActorFromUri(string $uri) : Actor
     {
         preg_match('/\/actor\/(\w*)\//', $uri, $matches );
         if( !$matches ) return null;
-        /** @var BaseActor $actor */
-        $actor = $this->em->getRepository(BaseActor::class)
+        /** @var Actor $actor */
+        $actor = $this->em->getRepository(Actor::class)
             ->findOneBy(['username' => $matches[1]]);
         return $actor;
     }
@@ -156,15 +154,15 @@ class ActivityPubService
     {
         preg_match('/\/actor\/(\w*)\/followers/', $uri, $matches );
         if( !$matches ) return null;
-        /** @var BaseActor $actor */
-        $actor = $this->em->getRepository(BaseActor::class)
+        /** @var Actor $actor */
+        $actor = $this->em->getRepository(Actor::class)
             ->findOneBy(['username' => $matches[1]]);
         return $actor->getFollowers();
     }
 
     public function getObjectUri($object) {
         switch( ClassUtils::getClass($object) ) {
-            case 'App\Entity\BaseActivity':
+            case 'App\Entity\Activity':
                 return $this->serverBaseUrl . '/activity/' . $object->getId();
                 break;
 

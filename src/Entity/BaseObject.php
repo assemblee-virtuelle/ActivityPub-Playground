@@ -12,8 +12,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\DiscriminatorMap({
  *     "Application" = "App\Entity\Actor\Application",
  *     "User" = "App\Entity\Actor\User",
- *     "Actor" = "BaseActor",
- *     "Activity" = "BaseActivity",
+ *     "Actor" = "Actor",
+ *     "Activity" = "Activity",
  *     "Object" = "BaseObject"
  * })
  */

@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\BaseActor;
+use App\Entity\Actor;
 use App\Service\ActivityPubService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -17,8 +17,8 @@ class ActorController extends BaseController
     {
         $em = $this->getDoctrine()->getManager();
 
-        /** @var BaseActor $actor */
-        $actor = $em->getRepository(BaseActor::class)->findOneBy(['username' => $username]);
+        /** @var Actor $actor */
+        $actor = $em->getRepository(Actor::class)->findOneBy(['username' => $username]);
 
         if( !$actor ) throw new NotFoundHttpException();
 

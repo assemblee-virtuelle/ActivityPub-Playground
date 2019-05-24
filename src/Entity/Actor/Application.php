@@ -3,7 +3,7 @@
 namespace App\Entity\Actor;
 
 use App\DbType\ActorType;
-use App\Entity\BaseActor;
+use App\Entity\Actor;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -11,7 +11,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\Entity
  * @ORM\Table(name="application")
  */
-class Application extends BaseActor implements UserInterface
+class Application extends Actor implements UserInterface
 {
     /**
      * @ORM\Column(type="string", length=16, unique=true)

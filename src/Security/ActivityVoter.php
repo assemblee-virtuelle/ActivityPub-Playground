@@ -4,8 +4,8 @@ namespace App\Security;
 
 use App\DbType\ActivityType;
 use App\DbType\ActorType;
-use App\Entity\BaseActivity;
-use App\Entity\BaseActor;
+use App\Entity\Activity;
+use App\Entity\Actor;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -19,7 +19,7 @@ class ActivityVoter extends Voter
         }
 
         // only vote on Activity objects inside this voter
-        if (!$subject instanceof BaseActivity) {
+        if (!$subject instanceof Activity) {
             return false;
         }
 
@@ -28,7 +28,7 @@ class ActivityVoter extends Voter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
-        /** @var BaseActor $user */
+        /** @var Actor $user */
         $user = $token->getUser();
         if ('anon.' === $user) {
             // our token implementation returns 'anon.' if no user logged in,
@@ -37,10 +37,10 @@ class ActivityVoter extends Voter
         }
 
         // guaranteed by supports
-        /** @var BaseActivity $activity */
+        /** @var Activity $activity */
         $activity = $subject;
 
-        /** @var BaseActor $postingActor */
+        /** @var Actor $postingActor */
         $postingActor = $activity->getActor();
 
         // Return true if the posting actor is the logged user
@@ -48,13 +48,13 @@ class ActivityVoter extends Voter
             return true;
         } else {
             // If this actor may be controlled, check if the logged user is controlling it
-            if( in_array($postingActor->getType(), BaseActor::CONTROLLABLE_ACTORS) ) {
-                /** @var BaseActor $postingActor */
+            if( in_array($postingActor->getType(), Actor::CONTROLLABLE_ACTORS) ) {
+                /** @var Actor $postingActor */
                 if( $postingActor->hasControllingActor($user) ){
                     return true;
                 } else {
                     // Also look for parents
-                    /** @var BaseActor[] $controllingActors */
+                    /** @var Actor[] $controllingActors */
                     $controllingActors = $postingActor->getControllingActors();
                     foreach( $controllingActors as $controllingActor ) {
                         if( $controllingActor->hasControllingActor($user) ) {

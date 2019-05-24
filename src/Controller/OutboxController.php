@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
-use App\Entity\BaseActivity;
-use App\Entity\BaseActor;
+use App\Entity\Activity;
+use App\Entity\Actor;
 use App\Entity\Actor\User;
 use App\Service\ActivityPubService;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -47,18 +47,18 @@ class OutboxController extends BaseController
         /** @var User $user */
         $user = $this->getUser();
 
-        /** @var BaseActor $actor */
-        $actor = $em->getRepository(BaseActor::class)->findOneBy(['username' => $username]);
+        /** @var Actor $actor */
+        $actor = $em->getRepository(Actor::class)->findOneBy(['username' => $username]);
         if( !$actor ) throw new NotFoundHttpException();
 
         $actorUri = $activityPubService->getObjectUri($actor);
 
         $activities = $actor
             ->getOutboxActivities()
-            ->filter(function (BaseActivity $activity) use ( $user ) {
+            ->filter(function (Activity $activity) use ( $user ) {
                 return $activity->getIsPublic() || $activity->getReceivingActors()->contains($user);
             })
-            ->map(function (BaseActivity $activity) use ( $actorUri, $activityPubService ) {
+            ->map(function (Activity $activity) use ( $actorUri, $activityPubService ) {
                 return([
                     "type" => $activity->getType(),
                     "actor" => $actorUri,

@@ -9,16 +9,16 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  * @ORM\Table(name="activity")
  */
-class BaseActivity extends BaseObject
+class Activity extends BaseObject
 {
     /**
-     * @ORM\ManyToOne(targetEntity="BaseActor", inversedBy="outboxActivities")
+     * @ORM\ManyToOne(targetEntity="Actor", inversedBy="outboxActivities")
      */
     private $actor;
 
     /**
      * Many Activities are posted to many Actors's inboxes
-     * @ORM\ManyToMany(targetEntity="BaseActor", inversedBy="inboxActivities")
+     * @ORM\ManyToMany(targetEntity="Actor", inversedBy="inboxActivities")
      * @ORM\JoinTable(name="activity_receiving_actor")
      */
     private $receivingActors;
@@ -56,7 +56,7 @@ class BaseActivity extends BaseObject
         return $this->receivingActors;
     }
 
-    public function addReceivingActor(BaseActor $actor)
+    public function addReceivingActor(Actor $actor)
     {
         if (!$this->receivingActors->contains($actor)) {
             $actor->addInboxActivity($this);
@@ -65,7 +65,7 @@ class BaseActivity extends BaseObject
         return $this;
     }
 
-    public function removeActorInbox(BaseActor $actor)
+    public function removeActorInbox(Actor $actor)
     {
         if ($this->receivingActors->contains($actor)) {
             $this->receivingActors->removeElement($actor);

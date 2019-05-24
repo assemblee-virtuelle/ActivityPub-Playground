@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  * @ORM\Table(name="actor")
  */
-class BaseActor extends BaseObject
+class Actor extends BaseObject
 {
     const CONTROLLABLE_ACTORS = [ ActorType::ORGANIZATION, ActorType::PROJECT ];
 
@@ -20,12 +20,12 @@ class BaseActor extends BaseObject
     protected $username;
 
     /**
-     * @ORM\ManyToMany(targetEntity="BaseActor", mappedBy="following")
+     * @ORM\ManyToMany(targetEntity="Actor", mappedBy="following")
      */
     protected $followers;
 
     /**
-     * @ORM\ManyToMany(targetEntity="BaseActor", inversedBy="followers")
+     * @ORM\ManyToMany(targetEntity="Actor", inversedBy="followers")
      * @ORM\JoinTable(
      *     name="following",
      *     joinColumns={@ORM\JoinColumn(name="follower", referencedColumnName="id")},
@@ -35,17 +35,17 @@ class BaseActor extends BaseObject
     protected $following;
 
     /**
-     * @ORM\OneToMany(targetEntity="BaseActivity", mappedBy="actor")
+     * @ORM\OneToMany(targetEntity="Activity", mappedBy="actor")
      */
     protected $outboxActivities;
 
     /**
-     * @ORM\ManyToMany(targetEntity="BaseActivity", mappedBy="receivingActors")
+     * @ORM\ManyToMany(targetEntity="Activity", mappedBy="receivingActors")
      */
     protected $inboxActivities;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\BaseActor")
+     * @ORM\ManyToMany(targetEntity="Actor")
      * @ORM\JoinTable(
      *     name="authorization",
      *     joinColumns={@ORM\JoinColumn(name="controlled_actor_id", referencedColumnName="id")},
@@ -90,7 +90,7 @@ class BaseActor extends BaseObject
         return $this->followers;
     }
 
-    public function addFollower(BaseActor $actor)
+    public function addFollower(Actor $actor)
     {
         if (!$this->followers->contains($actor)) {
             $actor->addFollowing($this);
@@ -99,7 +99,7 @@ class BaseActor extends BaseObject
         return $this;
     }
 
-    public function removeFollower(BaseActor $actor)
+    public function removeFollower(Actor $actor)
     {
         if ($this->followers->contains($actor)) {
             $actor->removeFollowing($this);
@@ -113,7 +113,7 @@ class BaseActor extends BaseObject
         return $this->following;
     }
 
-    public function addFollowing(BaseActor $actor)
+    public function addFollowing(Actor $actor)
     {
         if (!$this->following->contains($actor)) {
             $this->following[] = $actor;
@@ -121,7 +121,7 @@ class BaseActor extends BaseObject
         return $this;
     }
 
-    public function removeFollowing(BaseActor $actor)
+    public function removeFollowing(Actor $actor)
     {
         if ($this->following->contains($actor)) {
             $this->following->removeElement($actor);
@@ -134,7 +134,7 @@ class BaseActor extends BaseObject
         return $this->outboxActivities;
     }
 
-    public function addOutboxActivity(BaseActivity $activity)
+    public function addOutboxActivity(Activity $activity)
     {
         if (!$this->outboxActivities->contains($activity)) {
             $this->outboxActivities[] = $activity;
@@ -142,7 +142,7 @@ class BaseActor extends BaseObject
         return $this;
     }
 
-    public function removeOutboxActivity(BaseActivity $activity)
+    public function removeOutboxActivity(Activity $activity)
     {
         if ($this->outboxActivities->contains($activity)) {
             $this->outboxActivities->removeElement($activity);
@@ -155,7 +155,7 @@ class BaseActor extends BaseObject
         return $this->inboxActivities;
     }
 
-    public function addInboxActivity(BaseActivity $activity)
+    public function addInboxActivity(Activity $activity)
     {
         if (!$this->inboxActivities->contains($activity)) {
             $this->inboxActivities[] = $activity;
@@ -163,7 +163,7 @@ class BaseActor extends BaseObject
         return $this;
     }
 
-    public function removeInboxActivity(BaseActivity $activity)
+    public function removeInboxActivity(Activity $activity)
     {
         if ($this->inboxActivities->contains($activity)) {
             $this->inboxActivities->removeElement($activity);
@@ -176,7 +176,7 @@ class BaseActor extends BaseObject
         return $this->controllingActors;
     }
 
-    public function addControllingActor(BaseActor $actor)
+    public function addControllingActor(Actor $actor)
     {
         if (!$this->hasControllingActor($actor)) {
             $this->controllingActors[] = $actor;
@@ -184,7 +184,7 @@ class BaseActor extends BaseObject
         return $this;
     }
 
-    public function removeControllingActor(BaseActor $actor)
+    public function removeControllingActor(Actor $actor)
     {
         if ($this->hasControllingActor($actor)) {
             $this->controllingActors->removeElement($actor);
@@ -192,7 +192,7 @@ class BaseActor extends BaseObject
         return $this;
     }
 
-    public function hasControllingActor(BaseActor $actor)
+    public function hasControllingActor(Actor $actor)
     {
         return $this->controllingActors->contains($actor);
     }
