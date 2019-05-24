@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Entity;
+namespace AV\ActivityPubBundle\Entity;
 
-use App\DbType\ActorType;
+use AV\ActivityPubBundle\DbType\ActorType;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 

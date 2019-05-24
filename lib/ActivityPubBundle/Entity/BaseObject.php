@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity;
+namespace AV\ActivityPubBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -10,8 +10,6 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="class_name", type="string")
  * @ORM\DiscriminatorMap({
- *     "Application" = "App\Entity\Actor\Application",
- *     "User" = "App\Entity\Actor\User",
  *     "Actor" = "Actor",
  *     "Activity" = "Activity",
  *     "Object" = "BaseObject"

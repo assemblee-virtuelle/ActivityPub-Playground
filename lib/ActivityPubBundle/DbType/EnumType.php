@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DbType;
+namespace AV\ActivityPubBundle\DbType;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;

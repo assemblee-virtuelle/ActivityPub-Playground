@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Entity\Actor;
+namespace App\Entity;
 
-use App\DbType\ActorType;
-use App\Entity\Actor;
+use AV\ActivityPubBundle\Entity\Actor;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -11,8 +10,14 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\Entity
  * @ORM\Table(name="user")
  */
-class User extends Actor implements UserInterface
+class User implements UserInterface
 {
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="integer", unique=true)
+     */
+    private $id;
+
     /**
      * @ORM\Column(type="string", length=36, unique=true)
      */
@@ -37,20 +42,26 @@ class User extends Actor implements UserInterface
     private $roles;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @var Actor
+     * @ORM\OneToOne(targetEntity="AV\ActivityPubBundle\Entity\Actor", cascade={"persist"})
      */
-    private $firstName;
+    private $actor;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $lastName;
-
-    public function __construct()
+    public function __construct(Actor $actor)
     {
+        $this->actor = $actor;
         $this->roles = array('ROLE_USER');
-        $this->type = ActorType::PERSON;
-        parent::__construct();
+    }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
     }
 
     public function getUuid()
@@ -101,25 +112,13 @@ class User extends Actor implements UserInterface
     {
     }
 
-    public function getFirstName()
+    public function getActor()
     {
-        return $this->firstName;
+        return $this->actor;
     }
 
-    public function setFirstName($firstName)
+    public function getUsername()
     {
-        $this->firstName = $firstName;
-        return $this;
-    }
-
-    public function getLastName()
-    {
-        return $this->lastName;
-    }
-
-    public function setLastName($lastName)
-    {
-        $this->lastName = $lastName;
-        return $this;
+        return $this->actor->getUsername();
     }
 }

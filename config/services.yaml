@@ -32,6 +32,7 @@ services:
             $casPort: '%env(CAS_PORT)%'
             $casPath: '%env(CAS_PATH)%'
 
-    App\Service\ActivityPubService:
+    App\Controller\ApiController:
+        autowire: false
         arguments:
-            $serverBaseUrl: '%env(SERVER_BASE_URL)%'
+            - '@activity_pub.service'

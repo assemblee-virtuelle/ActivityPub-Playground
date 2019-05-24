@@ -4,11 +4,14 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Service\CasService;
+use AV\ActivityPubBundle\DbType\ActorType;
+use AV\ActivityPubBundle\Entity\Actor;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class CasController extends BaseController
+class CasController extends AbstractController
 {
     /**
      * @Route("/cas/login", name="cas_login")
@@ -37,15 +40,19 @@ class CasController extends BaseController
 
             // If user does not exist yet, create and persist it
             if( !$user ) {
-                $user = new User();
-                $user
-                    ->setId($attr['uid'])
-                    ->setUuid($attr['uuid'])
+
+                $actor = new Actor();
+                $actor
+                    ->setType(ActorType::PERSON)
                     ->setUsername($attr['name'])
+                    ->setName($attr['field_first_name'] . " " . $attr['field_last_name']);
+
+                $user = new User($actor);
+                $user
+                    ->setId($attr['id'])
+                    ->setUuid($attr['uuid'])
                     ->setEmail($attr['mail'])
-                    ->setPassword($attr['pass'])
-                    ->setFirstName($attr['field_first_name'])
-                    ->setLastName($attr['field_last_name']);
+                    ->setPassword($attr['pass']);
 
                 // TODO persist other returned data
                 //'langcode' => string 'fr' (length=2)

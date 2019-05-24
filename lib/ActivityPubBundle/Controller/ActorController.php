@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Controller;
+namespace AV\ActivityPubBundle\Controller;
 
-use App\Entity\Actor;
-use App\Service\ActivityPubService;
+use AV\ActivityPubBundle\Entity\Actor;
+use AV\ActivityPubBundle\Service\ActivityPubService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
@@ -13,9 +13,11 @@ class ActorController extends BaseController
     /**
      * @Route("/actor/{username}", name="actor_profile", methods={"GET"})
      */
-    public function actorProfile(string $username, ActivityPubService $activityPubService)
+    public function actorProfile(string $username)
     {
         $em = $this->getDoctrine()->getManager();
+        /** @var ActivityPubService $activityPubService */
+        $activityPubService = $this->container->get('activity_pub.service');
 
         /** @var Actor $actor */
         $actor = $em->getRepository(Actor::class)->findOneBy(['username' => $username]);

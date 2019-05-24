@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity;
+namespace AV\ActivityPubBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;

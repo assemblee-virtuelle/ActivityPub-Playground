@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Controller;
+namespace AV\ActivityPubBundle\Controller;
 
-use App\Entity\Activity;
-use App\Entity\Actor;
-use App\Entity\Actor\User;
-use App\Service\ActivityPubService;
+use AV\ActivityPubBundle\Entity\Activity;
+use AV\ActivityPubBundle\Entity\Actor;
+use AV\ActivityPubBundle\Service\ActivityPubService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,10 +18,13 @@ class OutboxController extends BaseController
     /**
      * @Route("/actor/{username}/outbox", name="actor_outbox", methods={"POST"})
      */
-    public function postActivity(string $username, Request $request, ActivityPubService $activityPubService)
+    public function postActivity(string $username, Request $request)
     {
-        /** @var User $user */
-        $user = $this->getUser();
+        /** @var ActivityPubService $activityPubService */
+        $activityPubService = $this->container->get('activity_pub.service');
+
+        /** @var Actor $user */
+        $user = $this->getUser()->getActor();
         $json = $this->parseBodyAsJson($request);
 
         if( $user->getUsername() !== $username ) {
@@ -41,11 +43,14 @@ class OutboxController extends BaseController
     /**
      * @Route("/actor/{username}/outbox", name="actor_outbox", methods={"GET"})
      */
-    public function readOutbox(string $username, ActivityPubService $activityPubService)
+    public function readOutbox(string $username)
     {
         $em = $this->getDoctrine()->getManager();
-        /** @var User $user */
-        $user = $this->getUser();
+        /** @var ActivityPubService $activityPubService */
+        $activityPubService = $this->container->get('activity_pub.service');
+
+        /** @var Actor $user */
+        $user = $this->getUser()->getActor();
 
         /** @var Actor $actor */
         $actor = $em->getRepository(Actor::class)->findOneBy(['username' => $username]);

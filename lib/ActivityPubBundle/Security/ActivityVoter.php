@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Security;
+namespace AV\ActivityPubBundle\Security;
 
-use App\DbType\ActivityType;
-use App\DbType\ActorType;
-use App\Entity\Activity;
-use App\Entity\Actor;
+use AV\ActivityPubBundle\DbType\ActivityType;
+use AV\ActivityPubBundle\Entity\Activity;
+use AV\ActivityPubBundle\Entity\Actor;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -29,7 +28,7 @@ class ActivityVoter extends Voter
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         /** @var Actor $user */
-        $user = $token->getUser();
+        $user = $token->getUser()->getActor();
         if ('anon.' === $user) {
             // our token implementation returns 'anon.' if no user logged in,
             // whereas our code expects null in that case.

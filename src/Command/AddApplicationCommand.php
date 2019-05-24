@@ -2,7 +2,9 @@
 
 namespace App\Command;
 
-use App\Entity\Actor\Application;
+use App\Entity\IncomingWebhook;
+use AV\ActivityPubBundle\DbType\ActorType;
+use AV\ActivityPubBundle\Entity\Actor;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -11,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AddApplicationCommand extends Command
 {
-    protected static $defaultName = 'app:add-application';
+    protected static $defaultName = 'app:create-incoming-webhook';
 
     protected $em;
 
@@ -38,18 +40,21 @@ class AddApplicationCommand extends Command
         $username = $input->getArgument('username');
         $apiKey = $this->generateRandomString(16);
 
-        $application = new Application();
-        $application
+        $actor = new Actor();
+        $actor
+            ->setType(ActorType::APPLICATION)
             ->setUsername($username)
-            ->setName('Incoming webhook')
-            ->setApiKey($apiKey);
+            ->setName('Incoming webhook');
 
-        $this->em->persist($application);
+        $incomingWebhook = new IncomingWebhook($actor);
+        $incomingWebhook->setApiKey($apiKey);
+
+        $this->em->persist($incomingWebhook);
         $this->em->flush();
 
         $output->writeln([
-            "Generated a new application with username : $username",
-            "API key for this application : $apiKey"
+            "Generated a new incoming webhook with username : $username",
+            "API key for this webhook : $apiKey"
         ]);
     }
 }

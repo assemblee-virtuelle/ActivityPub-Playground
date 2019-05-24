@@ -1,12 +1,12 @@
 <?php
 
-namespace App\DbType;
+namespace AV\ActivityPubBundle\DbType;
 
 class ActorType extends EnumType
 {
     protected $name = 'actor_type';
 
-    public const APPLICATION = 'Application';
+    public const APPLICATION = 'IncomingWebhook';
 
     public const GROUP = 'Group';
 

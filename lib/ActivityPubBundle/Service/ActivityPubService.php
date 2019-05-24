@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Service;
+namespace AV\ActivityPubBundle\Service;
 
-use App\DbType\ActorType;
-use App\DbType\ObjectType;
-use App\DbType\ActivityType;
-use App\Entity\Activity;
-use App\Entity\Actor;
-use App\Entity\BaseObject;
+use AV\ActivityPubBundle\DbType\ActorType;
+use AV\ActivityPubBundle\DbType\ObjectType;
+use AV\ActivityPubBundle\DbType\ActivityType;
+use AV\ActivityPubBundle\Entity\Activity;
+use AV\ActivityPubBundle\Entity\Actor;
+use AV\ActivityPubBundle\Entity\BaseObject;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManagerInterface;
@@ -25,7 +25,7 @@ class ActivityPubService
 
     public const PUBLIC_POST_URI = 'https://www.w3.org/ns/activitystreams#Public';
 
-    public function __construct(EntityManagerInterface $em, AuthorizationCheckerInterface $authorizationChecker, string $serverBaseUrl)
+    public function __construct(string $serverBaseUrl, EntityManagerInterface $em, AuthorizationCheckerInterface $authorizationChecker)
     {
         $this->em = $em;
         $this->authorizationChecker = $authorizationChecker;
@@ -84,7 +84,7 @@ class ActivityPubService
                 throw new BadRequestHttpException("Unhandled activity : $activityType");
         }
 
-        // TODO: notify followers
+        // TODO: send an ActivityEvent
 
         $this->em->persist($actor);
         $this->em->persist($activity);
@@ -111,7 +111,7 @@ class ActivityPubService
         $object
             ->setType($objectJson['type'])
             ->setName($objectJson['name'])
-            ->setContent($objectJson['content']);
+            ->setContent(in_array('content', $objectJson) ? $objectJson['content'] : null);
 
         $activity->setObject($object);
 
@@ -162,17 +162,15 @@ class ActivityPubService
 
     public function getObjectUri($object) {
         switch( ClassUtils::getClass($object) ) {
-            case 'App\Entity\Activity':
+            case 'AV\ActivityPubBundle\Entity\Activity':
                 return $this->serverBaseUrl . '/activity/' . $object->getId();
                 break;
 
-            case 'App\Entity\BaseObject':
-                return $this->serverBaseUrl . '/object/' . strtolower($object->getType()) . '/' . $object->getId();
+            case 'AV\ActivityPubBundle\Entity\BaseObject':
+                return $this->serverBaseUrl . '/object/' . $object->getId();
                 break;
 
-            case 'App\Entity\Actor\Organization':
-            case 'App\Entity\Actor\Application':
-            case 'App\Entity\Actor\User':
+            case 'AV\ActivityPubBundle\Entity\Actor':
                 return $this->serverBaseUrl . '/actor/' . $object->getUsername();
                 break;
 

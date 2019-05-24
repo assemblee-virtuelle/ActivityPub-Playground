@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DbType;
+namespace AV\ActivityPubBundle\DbType;
 
 class ObjectType extends EnumType
 {

@@ -22,9 +22,9 @@ doctrine:
             enum: string
 
         types:
-            activity_type: App\DbType\ActivityType
-            object_type: App\DbType\ObjectType
-            actor_type: App\DbType\ActorType
+            activity_type: AV\ActivityPubBundle\DbType\ActivityType
+            object_type: AV\ActivityPubBundle\DbType\ObjectType
+            actor_type: AV\ActivityPubBundle\DbType\ActorType
 
     orm:
         auto_generate_proxy_classes: true

@@ -1,0 +1,12 @@
+services:
+  activity_pub.service:
+    class: AV\ActivityPubBundle\Service\ActivityPubService
+    public: true
+    arguments:
+      - 'http://localhost'
+      - '@doctrine.orm.entity_manager'
+      - '@security.authorization_checker'
+
+  activity_pub.activity.voter:
+    class: AV\ActivityPubBundle\Security\ActivityVoter
+    tags: ['security.voter']

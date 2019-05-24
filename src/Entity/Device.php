@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use App\Entity\Actor\User;
+use App\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -21,7 +21,7 @@ class Device
 
     /**
      * @var User
-     * @ORM\ManyToOne(targetEntity="App\Entity\Actor\User")
+     * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(name="user_id", nullable=true, referencedColumnName="id")
      */
     protected $user;

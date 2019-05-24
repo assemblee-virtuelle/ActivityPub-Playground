@@ -2,7 +2,7 @@
 
 namespace App\Security;
 
-use App\Entity\Actor\Application;
+use App\Entity\IncomingWebhook;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -51,8 +51,8 @@ class ApiKeyAuthenticator extends AbstractGuardAuthenticator
             return;
         }
 
-        // if a Application object, checkCredentials() is called
-        return $this->em->getRepository(Application::class)
+        // if a IncomingWebhook object, checkCredentials() is called
+        return $this->em->getRepository(IncomingWebhook::class)
             ->findOneBy(['apiKey' => $apiKey]);
     }
 
