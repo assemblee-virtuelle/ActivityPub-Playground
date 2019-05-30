@@ -21,7 +21,6 @@ class ActorController extends BaseController
 
         /** @var Actor $actor */
         $actor = $em->getRepository(Actor::class)->findOneBy(['username' => $username]);
-
         if( !$actor ) throw new NotFoundHttpException();
 
         $actorUri = $activityPubService->getObjectUri($actor);

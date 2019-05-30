@@ -23,11 +23,10 @@ class OutboxController extends BaseController
         /** @var ActivityPubService $activityPubService */
         $activityPubService = $this->container->get('activity_pub.service');
 
-        /** @var Actor $user */
-        $user = $this->getUser()->getActor();
+        $actor = $this->getLoggedActor();
         $json = $this->parseBodyAsJson($request);
 
-        if( $user->getUsername() !== $username ) {
+        if( $actor->getUsername() !== $username ) {
             throw new AccessDeniedHttpException("You are not allowed to post to someone else's outbox");
         }
 
@@ -35,7 +34,7 @@ class OutboxController extends BaseController
             throw new BadRequestHttpException("You must post a JSON object to this endpoint");
         }
 
-        $activity = $activityPubService->handleActivity($json, $user);
+        $activity = $activityPubService->handleActivity($json, $actor);
 
         return new Response(null, Response::HTTP_CREATED, ['Location' => $activityPubService->getObjectUri($activity)]);
     }
@@ -49,9 +48,6 @@ class OutboxController extends BaseController
         /** @var ActivityPubService $activityPubService */
         $activityPubService = $this->container->get('activity_pub.service');
 
-        /** @var Actor $user */
-        $user = $this->getUser()->getActor();
-
         /** @var Actor $actor */
         $actor = $em->getRepository(Actor::class)->findOneBy(['username' => $username]);
         if( !$actor ) throw new NotFoundHttpException();
@@ -60,8 +56,8 @@ class OutboxController extends BaseController
 
         $activities = $actor
             ->getOutboxActivities()
-            ->filter(function (Activity $activity) use ( $user ) {
-                return $activity->getIsPublic() || $activity->getReceivingActors()->contains($user);
+            ->filter(function (Activity $activity) {
+                return $activity->getIsPublic() || $activity->getReceivingActors()->contains($this->getLoggedActor());
             })
             ->map(function (Activity $activity) use ( $actorUri, $activityPubService ) {
                 return([

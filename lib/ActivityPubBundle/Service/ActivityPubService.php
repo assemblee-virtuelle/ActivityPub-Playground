@@ -32,7 +32,7 @@ class ActivityPubService
         $this->serverBaseUrl = $serverBaseUrl;
     }
 
-    public function handleActivity(array $json, Actor $actor) : Activity
+    public function handleActivity(array $json, Actor $loggedActor) : Activity
     {
         if( $json['@context'] !== 'https://www.w3.org/ns/activitystreams' ) {
             throw new BadRequestHttpException("Only ActivityStreams objects are allowed");
@@ -54,16 +54,18 @@ class ActivityPubService
             throw new BadRequestHttpException("Unknown activity type : $activityType");
         }
 
-        $actor = $this->getActorFromUri($json['actor']);
-
         $activity = new Activity();
-        $activity
-            ->setType($activityType)
-            ->setActor($actor);
+        $activity->setType($activityType);
 
-        // Make sure the logged user has the right to post as the posting actor
+        if( array_key_exists('actor', $json) ) {
+            $activity->setActor($this->getActorFromUri($json['actor']));
+        } else {
+            $activity->setActor($loggedActor);
+        }
+
+        // Make sure the logged actor has the right to post as the posting actor
         if( !$this->authorizationChecker->isGranted($activityType, $activity) ) {
-            throw new UnauthorizedHttpException("You cannot post as {$actor->getUsername()}");
+            throw new UnauthorizedHttpException("You cannot post as {v->getUsername()}");
         }
 
         //////////////////
@@ -86,7 +88,6 @@ class ActivityPubService
 
         // TODO: send an ActivityEvent
 
-        $this->em->persist($actor);
         $this->em->persist($activity);
         $this->em->flush();
 
@@ -110,8 +111,8 @@ class ActivityPubService
 
         $object
             ->setType($objectJson['type'])
-            ->setName($objectJson['name'])
-            ->setContent(in_array('content', $objectJson) ? $objectJson['content'] : null);
+            ->setName(array_key_exists('name', $objectJson) ? $objectJson['name'] : null)
+            ->setContent(array_key_exists('content', $objectJson) ? $objectJson['content'] : null);
 
         $activity->setObject($object);
 
