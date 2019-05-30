@@ -5,6 +5,7 @@ namespace AV\ActivityPubBundle\Security;
 use AV\ActivityPubBundle\DbType\ActivityType;
 use AV\ActivityPubBundle\Entity\Activity;
 use AV\ActivityPubBundle\Entity\Actor;
+use AV\ActivityPubBundle\Entity\ActorUser;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -27,39 +28,43 @@ class ActivityVoter extends Voter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
-        /** @var Actor $user */
-        $user = $token->getUser()->getActor();
-        if ('anon.' === $user) {
-            // our token implementation returns 'anon.' if no user logged in,
-            // whereas our code expects null in that case.
-            $user = null;
-        }
+        /** @var ActorUser $user */
+        $user = $token->getUser();
 
-        // guaranteed by supports
+        // Our token implementation returns 'anon.' if no user logged in,
+        // whereas our code expects null in that case.
+        $loggedActor =  $user === 'anon.' ? null : $user->getActor();
+
+        // Guaranteed by the supports() method
         /** @var Activity $activity */
         $activity = $subject;
 
         /** @var Actor $postingActor */
         $postingActor = $activity->getActor();
 
-        // Return true if the posting actor is the logged user
-        if( $postingActor === $user ) {
+        if( $postingActor === $loggedActor ) {
+            return true;
+        } else if( in_array($postingActor->getType(), Actor::CONTROLLABLE_ACTORS) ) {
+            return $this->hasControl($postingActor, $loggedActor);
+        } else {
+            return false;
+        }
+    }
+
+    /*
+     * Check if the $controllingActor has the right to control the $controlledActor
+     */
+    private function hasControl(Actor $controlledActor, Actor $controllingActor) : bool
+    {
+        if( $controlledActor->hasControllingActor($controllingActor) ){
             return true;
         } else {
-            // If this actor may be controlled, check if the logged user is controlling it
-            if( in_array($postingActor->getType(), Actor::CONTROLLABLE_ACTORS) ) {
-                /** @var Actor $postingActor */
-                if( $postingActor->hasControllingActor($user) ){
+            // Also look for parents
+            /** @var Actor[] $controllingActors */
+            $controllingActors = $controlledActor->getControllingActors();
+            foreach( $controllingActors as $controllingActor ) {
+                if( $this->hasControl($controlledActor, $controllingActor) ) {
                     return true;
-                } else {
-                    // Also look for parents
-                    /** @var Actor[] $controllingActors */
-                    $controllingActors = $postingActor->getControllingActors();
-                    foreach( $controllingActors as $controllingActor ) {
-                        if( $controllingActor->hasControllingActor($user) ) {
-                            return true;
-                        }
-                    }
                 }
             }
         }
