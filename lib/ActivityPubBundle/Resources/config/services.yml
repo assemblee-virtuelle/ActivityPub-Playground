@@ -24,3 +24,11 @@ services:
   activity_pub.activity.voter:
     class: AV\ActivityPubBundle\Security\ActivityVoter
     tags: ['security.voter']
+
+  activity_pub.listener.exception_listener:
+    class: AV\ActivityPubBundle\EventListener\ExceptionListener
+    tags:
+      - { name: kernel.event_listener, event: kernel.exception, priority: 255 }
+    arguments:
+      - "%kernel.environment%"
+      - "@logger"
