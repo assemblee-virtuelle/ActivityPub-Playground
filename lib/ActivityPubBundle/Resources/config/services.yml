@@ -7,6 +7,20 @@ services:
       - '@doctrine.orm.entity_manager'
       - '@security.authorization_checker'
 
+  activity_pub.serializer.actor.medium:
+    class: AV\ActivityPubBundle\Serializer\ActorSerializer
+    public: true
+    arguments:
+      - 'medium'
+      - '@activity_pub.service'
+
+  activity_pub.serializer.actor.full:
+    class: AV\ActivityPubBundle\Serializer\ActorSerializer
+    public: true
+    arguments:
+      - 'full'
+      - '@activity_pub.service'
+
   activity_pub.activity.voter:
     class: AV\ActivityPubBundle\Security\ActivityVoter
     tags: ['security.voter']
