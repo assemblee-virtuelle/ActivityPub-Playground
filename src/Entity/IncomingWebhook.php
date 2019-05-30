@@ -3,14 +3,14 @@
 namespace App\Entity;
 
 use AV\ActivityPubBundle\Entity\Actor;
+use AV\ActivityPubBundle\Entity\ActorUser;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="incoming_webhook")
  */
-class IncomingWebhook implements UserInterface
+class IncomingWebhook extends ActorUser
 {
     /**
      * @ORM\Id
@@ -18,15 +18,9 @@ class IncomingWebhook implements UserInterface
      */
     private $apiKey;
 
-    /**
-     * @var Actor
-     * @ORM\OneToOne(targetEntity="AV\ActivityPubBundle\Entity\Actor", cascade={"persist"})
-     */
-    private $actor;
-
     public function __construct(Actor $actor)
     {
-        $this->actor = $actor;
+        parent::__construct($actor);
     }
 
     public function getRoles()
@@ -58,15 +52,5 @@ class IncomingWebhook implements UserInterface
     {
         $this->apiKey = $apiKey;
         return $this;
-    }
-
-    public function getActor()
-    {
-        return $this->actor;
-    }
-
-    public function getUsername()
-    {
-        return $this->actor->getUsername();
     }
 }

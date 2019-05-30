@@ -6,7 +6,7 @@ class ActorType extends EnumType
 {
     protected $name = 'actor_type';
 
-    public const APPLICATION = 'IncomingWebhook';
+    public const APPLICATION = 'Application';
 
     public const GROUP = 'Group';
 

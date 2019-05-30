@@ -3,14 +3,14 @@
 namespace App\Entity;
 
 use AV\ActivityPubBundle\Entity\Actor;
+use AV\ActivityPubBundle\Entity\ActorUser;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="user")
  */
-class User implements UserInterface
+class User extends ActorUser
 {
     /**
      * @ORM\Id
@@ -41,15 +41,9 @@ class User implements UserInterface
      */
     private $roles;
 
-    /**
-     * @var Actor
-     * @ORM\OneToOne(targetEntity="AV\ActivityPubBundle\Entity\Actor", cascade={"persist"})
-     */
-    private $actor;
-
     public function __construct(Actor $actor)
     {
-        $this->actor = $actor;
+        parent::__construct($actor);
         $this->roles = array('ROLE_USER');
     }
 
@@ -110,15 +104,5 @@ class User implements UserInterface
 
     public function eraseCredentials()
     {
-    }
-
-    public function getActor()
-    {
-        return $this->actor;
-    }
-
-    public function getUsername()
-    {
-        return $this->actor->getUsername();
     }
 }
