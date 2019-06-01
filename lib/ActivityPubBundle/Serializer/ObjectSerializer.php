@@ -25,7 +25,7 @@ class ObjectSerializer extends BaseSerializer
      *
      * @return array
      */
-    public function serialize($object): ?array
+    protected function getDataToSerialize($object): ?array
     {
         $this->ensureType($object, BaseObject::class);
 

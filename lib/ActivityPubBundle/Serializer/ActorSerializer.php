@@ -25,7 +25,7 @@ class ActorSerializer extends BaseSerializer
      *
      * @return array
      */
-    public function serialize($actor): ?array
+    protected function getDataToSerialize($actor): ?array
     {
         $this->ensureType($actor, Actor::class);
 

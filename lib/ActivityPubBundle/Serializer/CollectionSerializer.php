@@ -27,7 +27,7 @@ class CollectionSerializer extends BaseSerializer
      *
      * @return array
      */
-    public function serialize($collection): ?array
+    protected function getDataToSerialize($collection): ?array
     {
         $result = [
             "@context" => "https://www.w3.org/ns/activitystreams",

@@ -29,7 +29,7 @@ class ActivitySerializer extends BaseSerializer
      *
      * @return array
      */
-    public function serialize($activity): ?array
+    protected function getDataToSerialize($activity): ?array
     {
         $this->ensureType($activity, Activity::class);
 

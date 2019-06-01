@@ -42,7 +42,16 @@ abstract class BaseSerializer
      *
      * @since 5.4.0
      */
-    abstract public function serialize($entity): ?array;
+    abstract protected function getDataToSerialize($entity): ?array;
+
+    public function serialize($entity): ?array
+    {
+        $result = $this->getDataToSerialize($entity);
+
+        $result = array_filter($result, function($prop) { return !is_null($prop); });
+
+        return $result;
+    }
 
     /**
      * Throw an exception if $entity is not of type $type.
