@@ -32,10 +32,7 @@ class ActorSerializer extends BaseSerializer
         $actorUri = $this->activityPubService->getObjectUri($actor);
 
         $result = [
-            "@context" => [
-                "https://www.w3.org/ns/activitystreams",
-                "https://w3id.org/security/v1"
-            ],
+            "@context" => "https://www.w3.org/ns/activitystreams",
             "id" => $actorUri,
             "type" => $actor->getType(),
             "preferredUsername" => $actor->getUsername(),
@@ -44,6 +41,10 @@ class ActorSerializer extends BaseSerializer
 
         if ($this->flavour === self::FLAVOUR_FULL) {
             $result = array_merge($result, [
+                "@context" => [
+                    "https://www.w3.org/ns/activitystreams",
+                    "https://w3id.org/security/v1"
+                ],
                 "inbox" => $actorUri . '/inbox',
                 "outbox" => $actorUri . '/outbox',
                 "followers" => $actorUri . '/followers',

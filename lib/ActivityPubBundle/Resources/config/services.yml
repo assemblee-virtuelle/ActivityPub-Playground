@@ -7,6 +7,13 @@ services:
       - '@doctrine.orm.entity_manager'
       - '@security.authorization_checker'
 
+  activity_pub.serializer.activity.small:
+    class: AV\ActivityPubBundle\Serializer\ActivitySerializer
+    public: true
+    arguments:
+      - 'small'
+      - '@activity_pub.service'
+
   activity_pub.serializer.actor.medium:
     class: AV\ActivityPubBundle\Serializer\ActorSerializer
     public: true
@@ -20,6 +27,13 @@ services:
     arguments:
       - 'full'
       - '@activity_pub.service'
+
+  activity_pub.serializer.collection:
+    class: AV\ActivityPubBundle\Serializer\CollectionSerializer
+    public: true
+    arguments:
+      - '@activity_pub.service'
+      - '@activity_pub.serializer.activity.small'
 
   activity_pub.activity.voter:
     class: AV\ActivityPubBundle\Security\ActivityVoter

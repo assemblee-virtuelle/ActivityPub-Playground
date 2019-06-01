@@ -4,8 +4,10 @@ namespace AV\ActivityPubBundle\Controller;
 
 use AV\ActivityPubBundle\Entity\Activity;
 use AV\ActivityPubBundle\Entity\Actor;
+use AV\ActivityPubBundle\Entity\OrderedCollection;
+use AV\ActivityPubBundle\Serializer\CollectionSerializer;
+use AV\ActivityPubBundle\Serializer\Serializable;
 use AV\ActivityPubBundle\Service\ActivityPubService;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -47,6 +49,8 @@ class OutboxController extends BaseController
         $em = $this->getDoctrine()->getManager();
         /** @var ActivityPubService $activityPubService */
         $activityPubService = $this->container->get('activity_pub.service');
+        /** @var CollectionSerializer $collectionSerializer */
+        $collectionSerializer = $this->container->get('activity_pub.serializer.collection');
 
         /** @var Actor $actor */
         $actor = $em->getRepository(Actor::class)->findOneBy(['username' => $username]);
@@ -58,21 +62,10 @@ class OutboxController extends BaseController
             ->getOutboxActivities()
             ->filter(function (Activity $activity) {
                 return $activity->getIsPublic() || $activity->getReceivingActors()->contains($this->getLoggedActor());
-            })
-            ->map(function (Activity $activity) use ( $actorUri, $activityPubService ) {
-                return([
-                    "type" => $activity->getType(),
-                    "actor" => $actorUri,
-                    "object" => $activity->getObject() ? $activityPubService->getObjectUri($activity->getObject()) : null
-                ]);
             });
 
-        return new JsonResponse([
-            "@context" => "https://www.w3.org/ns/activitystreams",
-            "id" => $actorUri . "/outbox",
-            "type" => "OrderedCollection",
-            "totalItems" => count($activities),
-            "orderedItems" => $activities->toArray()
-        ]);
+        $outbox = new OrderedCollection($actorUri . "/outbox", $activities);
+
+        return $this->json(new Serializable($outbox, $collectionSerializer));
     }
 }
