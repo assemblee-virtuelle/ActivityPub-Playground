@@ -5,7 +5,7 @@ namespace AV\ActivityPubBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AV\ActivityPubBundle\Repository\ObjectRepository")
  * @ORM\Table(name="object")
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="class_name", type="string")
@@ -28,6 +28,12 @@ class BaseObject
      * @ORM\Column(type="string")
      */
     protected $type;
+
+    /**
+     * Each Activity has one or zero Object
+     * @ORM\OneToOne(targetEntity="Activity", mappedBy="object")
+     */
+    private $createActivity;
 
     /**
      * @ORM\Column(type="string", nullable=true)
@@ -69,6 +75,11 @@ class BaseObject
     {
         $this->type = $type;
         return $this;
+    }
+
+    public function getCreateActivity()
+    {
+        return $this->createActivity;
     }
 
     public function getName()

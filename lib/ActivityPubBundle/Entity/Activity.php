@@ -30,7 +30,7 @@ class Activity extends BaseObject
 
     /**
      * Each Activity has one or zero Object
-     * @ORM\OneToOne(targetEntity="BaseObject", cascade={"persist"})
+     * @ORM\OneToOne(targetEntity="BaseObject", inversedBy="createActivity", cascade={"persist"})
      */
     private $object;
 

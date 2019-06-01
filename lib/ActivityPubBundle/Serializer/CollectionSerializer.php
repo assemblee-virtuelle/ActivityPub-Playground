@@ -16,10 +16,14 @@ class CollectionSerializer extends BaseSerializer
     /** @var ActivitySerializer $activitySerializer */
     private $activitySerializer;
 
-    public function __construct(ActivityPubService $activityPubService, ActivitySerializer $activitySerializer)
+    /** @var ObjectSerializer $objectSerializer */
+    private $objectSerializer;
+
+    public function __construct(ActivityPubService $activityPubService, ActivitySerializer $activitySerializer, ObjectSerializer $objectSerializer)
     {
         $this->activityPubService = $activityPubService;
         $this->activitySerializer = $activitySerializer;
+        $this->objectSerializer = $objectSerializer;
     }
 
     /**
@@ -37,6 +41,8 @@ class CollectionSerializer extends BaseSerializer
             "orderedItems" => $collection->getObjects()->map(function (BaseObject $object) {
                 if( is_a($object, Activity::class) ) {
                     return( $this->activitySerializer->serialize($object) );
+                } else if( is_a($object, BaseObject::class) ) {
+                    return( $this->objectSerializer->serialize($object) );
                 } else {
                     throw new BadRequestHttpException("Cannot serialize object of type" . get_class($object));
                 }
