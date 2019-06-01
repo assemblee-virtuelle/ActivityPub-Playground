@@ -3,7 +3,6 @@
 namespace AV\ActivityPubBundle\Serializer;
 
 use AV\ActivityPubBundle\Entity\Activity;
-use AV\ActivityPubBundle\Entity\Actor;
 use AV\ActivityPubBundle\Service\ActivityPubService;
 
 class ActivitySerializer extends BaseSerializer
@@ -14,11 +13,15 @@ class ActivitySerializer extends BaseSerializer
     /** @var ActivityPubService $activityPubService */
     private $activityPubService;
 
-    public function __construct($flavour, ActivityPubService $activityPubService)
+    /** @var ObjectSerializer $objectSerializer */
+    private $objectSerializer;
+
+    public function __construct($flavour, ActivityPubService $activityPubService, ObjectSerializer $objectSerializer)
     {
-        $this->ensureFlavour($flavour, [self::FLAVOUR_SMALL]);
+        $this->ensureFlavour($flavour, [self::FLAVOUR_SMALL, self::FLAVOUR_MEDIUM]);
         $this->flavour = $flavour;
         $this->activityPubService = $activityPubService;
+        $this->objectSerializer = $objectSerializer;
     }
 
     /**
@@ -39,6 +42,12 @@ class ActivitySerializer extends BaseSerializer
             "actor" => $activity->getActor() ? $this->activityPubService->getObjectUri($activity->getActor()) : null,
             "object" => $activity->getObject() ? $this->activityPubService->getObjectUri($activity->getObject()) : null
         ];
+
+        if ($this->flavour === self::FLAVOUR_MEDIUM) {
+            $result = array_merge($result, [
+                "object" => $activity->getObject() ? $this->objectSerializer->serialize($activity->getObject()) : null
+            ]);
+        }
 
         return $result;
     }

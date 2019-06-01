@@ -34,6 +34,8 @@ class Serializable implements \JsonSerializable
     {
         $result = $this->serializer->serialize($this->entity);
 
+        $result = array_filter($result, function($prop) { return !is_null($prop); });
+
         return array_merge_recursive($result, $this->additional);
     }
 }
