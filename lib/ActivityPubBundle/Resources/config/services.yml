@@ -42,7 +42,7 @@ services:
     public: true
     arguments:
       - '@activity_pub.service'
-      - '@activity_pub.serializer.activity.small'
+      - '@activity_pub.serializer.activity.medium'
 
   activity_pub.serializer.object.medium:
     class: AV\ActivityPubBundle\Serializer\ObjectSerializer

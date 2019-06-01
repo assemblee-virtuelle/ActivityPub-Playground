@@ -114,7 +114,9 @@ class ActivityPubService
             ->setName(array_key_exists('name', $objectJson) ? $objectJson['name'] : null)
             ->setContent(array_key_exists('content', $objectJson) ? $objectJson['content'] : null);
 
-        $activity->setObject($object);
+        $activity
+            ->setIsPublic(true)
+            ->setObject($object);
 
         // Forward activity
         if( isset($objectJson['to']) ) {
