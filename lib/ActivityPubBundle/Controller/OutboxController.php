@@ -5,6 +5,7 @@ namespace AV\ActivityPubBundle\Controller;
 use AV\ActivityPubBundle\Entity\Activity;
 use AV\ActivityPubBundle\Entity\Actor;
 use AV\ActivityPubBundle\Entity\OrderedCollection;
+use AV\ActivityPubBundle\Repository\ActivityRepository;
 use AV\ActivityPubBundle\Serializer\CollectionSerializer;
 use AV\ActivityPubBundle\Serializer\Serializable;
 use AV\ActivityPubBundle\Service\ActivityPubService;
@@ -51,6 +52,8 @@ class OutboxController extends BaseController
         $activityPubService = $this->container->get('activity_pub.service');
         /** @var CollectionSerializer $collectionSerializer */
         $collectionSerializer = $this->container->get('activity_pub.serializer.collection');
+        /** @var ActivityRepository $activityRepo */
+        $activityRepo = $em->getRepository(Activity::class);
 
         /** @var Actor $actor */
         $actor = $em->getRepository(Actor::class)->findOneBy(['username' => $username]);
@@ -58,14 +61,10 @@ class OutboxController extends BaseController
 
         $actorUri = $activityPubService->getObjectUri($actor);
 
-        $activities = $actor
-            ->getOutboxActivities()
-            ->filter(function (Activity $activity) {
-                return $activity->getIsPublic() || $activity->getReceivingActors()->contains($this->getLoggedActor());
-            });
+        $activities = $activityRepo->getOutboxActivities($actor, $this->getLoggedActor());
 
-        $outbox = new OrderedCollection($actorUri . "/outbox", $activities);
+        $collection = new OrderedCollection($actorUri . "/outbox", $activities);
 
-        return $this->json(new Serializable($outbox, $collectionSerializer));
+        return $this->json(new Serializable($collection, $collectionSerializer));
     }
 }
