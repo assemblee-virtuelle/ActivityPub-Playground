@@ -74,17 +74,6 @@ class Actor extends BaseObject
         return $this;
     }
 
-    public function getSummary()
-    {
-        return $this->summary;
-    }
-
-    public function setSummary($summary)
-    {
-        $this->summary = $summary;
-        return $this;
-    }
-
     public function getFollowers()
     {
         return $this->followers;

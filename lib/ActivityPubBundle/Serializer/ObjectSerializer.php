@@ -37,7 +37,12 @@ class ObjectSerializer extends BaseSerializer
             "type" => $object->getType(),
             "name" => $object->getName(),
             "summary" => $object->getSummary(),
-            "content" => $object->getContent()
+            "content" => $object->getContent(),
+            "image" => $object->getImage(),
+            "url" => $object->getUrl(),
+            "published" => $object->getPublished(),
+            "updated" => $object->getUpdated(),
+            "location" => $this->serialize($object->getLocation())
         ];
 
         return $result;

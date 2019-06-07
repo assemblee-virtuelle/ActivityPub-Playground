@@ -6,6 +6,13 @@ services:
       - 'http://localhost'
       - '@doctrine.orm.entity_manager'
       - '@security.authorization_checker'
+      - '@activity_pub.parser'
+
+  activity_pub.parser:
+    class: AV\ActivityPubBundle\Service\ActivityStreamsParser
+    public: true
+    arguments:
+      - '@doctrine.orm.entity_manager'
 
   activity_pub.serializer.activity.small:
     class: AV\ActivityPubBundle\Serializer\ActivitySerializer

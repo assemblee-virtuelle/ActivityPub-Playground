@@ -23,13 +23,16 @@ class ActivityPubService
 
     protected $serverBaseUrl;
 
+    protected $parser;
+
     public const PUBLIC_POST_URI = 'https://www.w3.org/ns/activitystreams#Public';
 
-    public function __construct(string $serverBaseUrl, EntityManagerInterface $em, AuthorizationCheckerInterface $authorizationChecker)
+    public function __construct(string $serverBaseUrl, EntityManagerInterface $em, AuthorizationCheckerInterface $authorizationChecker, ActivityStreamsParser $parser)
     {
         $this->em = $em;
         $this->authorizationChecker = $authorizationChecker;
         $this->serverBaseUrl = $serverBaseUrl;
+        $this->parser = $parser;
     }
 
     public function handleActivity(array $json, Actor $loggedActor) : Activity
@@ -96,23 +99,13 @@ class ActivityPubService
 
     protected function handleCreate(Activity $activity, array $objectJson)
     {
-        if( in_array($objectJson['type'], ObjectType::getValues()) ) {
-            $object = new BaseObject();
-        } elseif ( in_array($objectJson['type'], ActorType::getValues()) ) {
+        $object = $this->parser->parse($objectJson);
+
+        if ( in_array($objectJson['type'], ActorType::getValues()) ) {
             if( !in_array($objectJson['type'], Actor::CONTROLLABLE_ACTORS) )
                 throw new BadRequestHttpException("This type of actor cannot be created");
-            $object = new Actor();
-            $object
-                ->setUsername($objectJson['username'])
-                ->addControllingActor($activity->getActor());
-        } else {
-            throw new BadRequestHttpException("Unhandled object : {$objectJson['type']}");
+            $object->addControllingActor($activity->getActor());
         }
-
-        $object
-            ->setType($objectJson['type'])
-            ->setName(array_key_exists('name', $objectJson) ? $objectJson['name'] : null)
-            ->setContent(array_key_exists('content', $objectJson) ? $objectJson['content'] : null);
 
         $activity
             ->setIsPublic(true)

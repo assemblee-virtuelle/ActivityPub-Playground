@@ -50,68 +50,155 @@ class BaseObject
      */
     protected $content;
 
-    public function __toString()
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    protected $image;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    protected $url;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    protected $published;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    protected $updated;
+
+    /**
+     * @ORM\OneToOne(targetEntity="BaseObject", cascade={"persist", "remove"})
+     */
+    protected $location;
+
+    public function __toString() : string
     {
         return "Object " . $this->getType() . " #" . $this->getId();
     }
 
-    public function getId()
+    public function set(string $name, $value)
+    {
+        $this->{$name} = $value;
+
+        return $this;
+    }
+
+    public function getId() : ?int
     {
         return $this->id;
     }
 
-    public function setId($id)
+    public function setId(int $id) : self
     {
         $this->id = $id;
         return $this;
     }
 
-    public function getType()
+    public function getType() : string
     {
         return $this->type;
     }
 
-    public function setType($type)
+    public function setType(string $type) : self
     {
         $this->type = $type;
         return $this;
     }
 
-    public function getCreateActivity()
+    public function getCreateActivity() : Activity
     {
         return $this->createActivity;
     }
 
-    public function getName()
+    public function getName() : ?string
     {
         return $this->name;
     }
 
-    public function setName($name)
+    public function setName(?string $name) : self
     {
         $this->name = $name;
         return $this;
     }
 
-    public function getSummary()
+    public function getSummary() : ?string
     {
         return $this->summary;
     }
 
-    public function setSummary($summary)
+    public function setSummary(?string $summary) : self
     {
         $this->summary = $summary;
         return $this;
     }
 
-    public function getContent()
+    public function getContent() : ?string
     {
         return $this->content;
     }
 
-    public function setContent($content)
+    public function setContent(?string $content) : self
     {
         $this->content = $content;
+        return $this;
+    }
+
+    public function getImage() : ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image) : self
+    {
+        $this->image = $image;
+        return $this;
+    }
+
+    public function getUrl() : ?string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(?string $url) : self
+    {
+        $this->url = $url;
+        return $this;
+    }
+
+    public function getPublished() : ?\DateTime
+    {
+        return $this->published;
+    }
+
+    public function setPublished(?\DateTime $published) : self
+    {
+        $this->published = $published;
+        return $this;
+    }
+
+    public function getUpdated() : ?\DateTime
+    {
+        return $this->updated;
+    }
+
+    public function setUpdated(?\DateTime $updated) : self
+    {
+        $this->updated = $updated;
+        return $this;
+    }
+
+    public function getLocation() : ?BaseObject
+    {
+        return $this->location;
+    }
+
+    public function setLocation(?BaseObject $location) : self
+    {
+        $this->location = $location;
         return $this;
     }
 }

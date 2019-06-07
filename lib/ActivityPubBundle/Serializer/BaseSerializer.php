@@ -46,6 +46,8 @@ abstract class BaseSerializer
 
     public function serialize($entity): ?array
     {
+        if( !$entity ) return null;
+
         $result = $this->getDataToSerialize($entity);
 
         $result = array_filter($result, function($prop) { return !is_null($prop); });
