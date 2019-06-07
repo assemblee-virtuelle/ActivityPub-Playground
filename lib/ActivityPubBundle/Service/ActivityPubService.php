@@ -42,7 +42,7 @@ class ActivityPubService
         }
 
         // If an object or actor is passed directly, wrap it inside a Create activity
-        if( in_array($json['type'], ObjectType::getValues()) || in_array($json['type'], ActorType::getValues()) ) {
+        if( ObjectType::includes($json['type']) || ActorType::includes($json['type']) ) {
             $json = [
                 'type' => ActivityType::CREATE,
                 'to' => isset($json['to']) ? $json['to'] : null,
@@ -53,22 +53,18 @@ class ActivityPubService
 
         $activityType = $json['type'];
 
-        if( !in_array($activityType, ActivityType::getValues()) ) {
-            throw new BadRequestHttpException("Unknown activity type : $activityType");
-        }
-
-        $activity = new Activity();
-        $activity->setType($activityType);
+        /** @var Activity $activity */
+        $activity = $this->parser->parse($json);
 
         if( array_key_exists('actor', $json) ) {
             $activity->setActor($this->getActorFromUri($json['actor']));
+
+            // Make sure the logged actor has the right to post as the posting actor
+            if( !$this->authorizationChecker->isGranted($activityType, $activity) ) {
+                throw new UnauthorizedHttpException("You cannot post as {$activity->getActor()->getUsername()}");
+            }
         } else {
             $activity->setActor($loggedActor);
-        }
-
-        // Make sure the logged actor has the right to post as the posting actor
-        if( !$this->authorizationChecker->isGranted($activityType, $activity) ) {
-            throw new UnauthorizedHttpException("You cannot post as {v->getUsername()}");
         }
 
         //////////////////
@@ -99,17 +95,13 @@ class ActivityPubService
 
     protected function handleCreate(Activity $activity, array $objectJson)
     {
-        $object = $this->parser->parse($objectJson);
-
-        if ( in_array($objectJson['type'], ActorType::getValues()) ) {
-            if( !in_array($objectJson['type'], Actor::CONTROLLABLE_ACTORS) )
+        if ( ActorType::includes($activity->getType()) ) {
+            if( !in_array($activity->getType(), Actor::CONTROLLABLE_ACTORS) )
                 throw new BadRequestHttpException("This type of actor cannot be created");
-            $object->addControllingActor($activity->getActor());
+            $activity->getObject()->addControllingActor($activity->getActor());
         }
 
-        $activity
-            ->setIsPublic(true)
-            ->setObject($object);
+        $activity->setIsPublic(true);
 
         // Forward activity
         if( isset($objectJson['to']) ) {

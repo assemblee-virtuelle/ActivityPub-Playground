@@ -22,15 +22,15 @@ class ActivityStreamsParser
 
     public function parse(array $json) : BaseObject
     {
-        if( in_array($json['type'], ActivityType::getValues()) ) {
+        if( ActivityType::includes($json['type']) ) {
             $activity = new Activity();
             $this->parseActivity($activity, $json);
             return $activity;
-        } elseif ( in_array($json['type'], ObjectType::getValues()) ) {
+        } elseif ( ObjectType::includes($json['type']) ) {
             $object = new BaseObject();
             $this->parseObject($object, $json);
             return $object;
-        } elseif ( in_array($json['type'], ActorType::getValues()) ) {
+        } elseif ( ActorType::includes($json['type']) ) {
             $actor = new Actor();
             $this->parseActor($actor, $json);
             return $actor;
@@ -42,6 +42,12 @@ class ActivityStreamsParser
     protected function parseActivity(Activity $activity, array $json)
     {
         $this->parseObject($activity, $json);
+
+        if( array_key_exists('object', $json) ) {
+            $object = new BaseObject();
+            $this->parseObject($object, $json['object']);
+            $activity->setObject($object);
+        }
     }
 
     protected function parseObject(BaseObject $object, array $json)

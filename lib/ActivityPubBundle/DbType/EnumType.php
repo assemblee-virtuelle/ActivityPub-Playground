@@ -42,6 +42,11 @@ abstract class EnumType extends Type
         return array_slice($constants, 0, count($constants) - count($parentConstants));
     }
 
+    public static function includes($value): bool
+    {
+        return in_array($value, self::getValues());
+    }
+
     public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): string
     {
         $values = array_map(function ($val) { return "'".$val."'"; }, self::getValues());

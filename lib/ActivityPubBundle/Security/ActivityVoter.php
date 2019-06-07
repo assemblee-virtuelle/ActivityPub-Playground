@@ -14,7 +14,7 @@ class ActivityVoter extends Voter
     protected function supports($attribute, $subject): bool
     {
         // if the attribute isn't one we support, return false
-        if (!in_array($attribute, ActivityType::getValues(), true)) {
+        if (!ActivityType::includes($attribute)) {
             return false;
         }
 
