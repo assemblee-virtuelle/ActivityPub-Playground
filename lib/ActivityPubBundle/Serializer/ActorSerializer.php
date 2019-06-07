@@ -49,6 +49,7 @@ class ActorSerializer extends BaseSerializer
                 "outbox" => $actorUri . '/outbox',
                 "followers" => $actorUri . '/followers',
                 "following" => $actorUri . '/following',
+                "created" => $actorUri . '/created',
                 "publicKey" => [
                     "id" => $actorUri . "#main-key",
                     "owner" => $actorUri,
