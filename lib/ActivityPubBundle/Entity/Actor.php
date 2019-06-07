@@ -56,6 +56,7 @@ class Actor extends BaseObject
 
     public function __construct()
     {
+        parent::__construct();
         $this->followers = new ArrayCollection();
         $this->following = new ArrayCollection();
         $this->outboxActivities = new ArrayCollection();

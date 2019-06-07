@@ -36,6 +36,7 @@ class Activity extends BaseObject
 
     public function __construct()
     {
+        parent::__construct();
         $this->isPublic = false;
         $this->receivingActors = new ArrayCollection();
     }

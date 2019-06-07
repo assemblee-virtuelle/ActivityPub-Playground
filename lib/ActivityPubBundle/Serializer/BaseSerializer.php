@@ -2,6 +2,8 @@
 
 namespace AV\ActivityPubBundle\Serializer;
 
+use Doctrine\Common\Collections\Collection;
+
 /**
  * We encapsulate Serializer definitions in sub-classes of that one,
  * trying to have only one Serializer class per Entity,
@@ -50,7 +52,15 @@ abstract class BaseSerializer
 
         $result = $this->getDataToSerialize($entity);
 
-        $result = array_filter($result, function($prop) { return !is_null($prop); });
+        $result = array_filter($result, function($prop) {
+            if( is_null($prop) ) {
+                return false;
+            } else if( $prop instanceof Collection && $prop->isEmpty() ) {
+                return false;
+            } else {
+                return true;
+            }
+        });
 
         return $result;
     }

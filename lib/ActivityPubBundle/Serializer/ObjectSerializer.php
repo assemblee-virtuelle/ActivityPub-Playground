@@ -42,7 +42,8 @@ class ObjectSerializer extends BaseSerializer
             "url" => $object->getUrl(),
             "published" => $object->getPublished(),
             "updated" => $object->getUpdated(),
-            "location" => $this->serialize($object->getLocation())
+            "location" => $this->serialize($object->getLocation()),
+            "tag" => $object->getTags()->map(function( $tag ) { return $this->serialize($tag); })
         ];
 
         return $result;

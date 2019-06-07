@@ -44,8 +44,7 @@ class ActivityStreamsParser
         $this->parseObject($activity, $json);
 
         if( array_key_exists('object', $json) ) {
-            $object = new BaseObject();
-            $this->parseObject($object, $json['object']);
+            $object = $this->parse($json['object']);
             $activity->setObject($object);
         }
     }
@@ -58,6 +57,29 @@ class ActivityStreamsParser
             $location = new BaseObject();
             $this->parseObject($location, $json['location']);
             $object->setLocation($location);
+        }
+
+        if( array_key_exists('tag', $json) ) {
+            foreach( $json['tag'] as $tagValue ) {
+                if( is_string($tagValue) ) {
+                    $tag = $this->getObjectFromUri($tagValue);
+                } else if( is_array($tagValue) ) {
+                    if( $tagValue['type'] === ObjectType::TOPIC ) {
+                        $tag = $this->em->getRepository(BaseObject::class)
+                            ->findOneBy(['type' => ObjectType::TOPIC ,'name' => $tagValue['name']]);
+                        if( !$tag ) {
+                            $tag = new BaseObject();
+                            $this->parseObject($tag, $tagValue);
+                        }
+                    } else {
+                        throw new BadRequestHttpException('Bad tag type : ' . $tagValue['type']);
+                    }
+                } else {
+                    throw new BadRequestHttpException('Bad tag : ' . gettype($tagValue));
+                }
+
+                $object->addTag($tag);
+            }
         }
     }
 
@@ -92,11 +114,20 @@ class ActivityStreamsParser
         $fieldTypes = [];
         $metadata = $this->em->getMetadataFactory()->getMetadataFor($className);
 
-
         foreach( $metadata->getFieldNames() as $fieldName ) {
             $fieldTypes[$fieldName] = $metadata->getTypeOfField($fieldName);
         };
 
         return $fieldTypes;
+    }
+
+    public function getObjectFromUri(string $uri) : BaseObject
+    {
+        preg_match('/\/object\/(\d*)\//', $uri, $matches );
+        if( !$matches ) return null;
+        /** @var BaseObject $object */
+        $object = $this->em->getRepository(BaseObject::class)
+            ->findOneBy(['id' => $matches[1]]);
+        return $object;
     }
 }

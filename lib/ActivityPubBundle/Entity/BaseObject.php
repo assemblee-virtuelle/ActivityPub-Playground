@@ -2,6 +2,8 @@
 
 namespace AV\ActivityPubBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -74,6 +76,21 @@ class BaseObject
      * @ORM\OneToOne(targetEntity="BaseObject", cascade={"persist", "remove"})
      */
     protected $location;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="BaseObject", cascade={"persist"})
+     * @ORM\JoinTable(
+     *     name="tag",
+     *     joinColumns={@ORM\JoinColumn(name="tagged_object_id", referencedColumnName="id")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="tag_id", referencedColumnName="id")}
+     * )
+     */
+    protected $tags;
+
+    public function __construct()
+    {
+        $this->tags = new ArrayCollection();
+    }
 
     public function __toString() : string
     {
@@ -200,5 +217,31 @@ class BaseObject
     {
         $this->location = $location;
         return $this;
+    }
+
+    public function getTags() : Collection
+    {
+        return $this->tags;
+    }
+
+    public function addTag(BaseObject $tag) : self
+    {
+        if (!$this->hasTag($tag)) {
+            $this->tags[] = $tag;
+        }
+        return $this;
+    }
+
+    public function removeTag(BaseObject $tag) : self
+    {
+        if ($this->hasTag($tag)) {
+            $this->tags->removeElement($tag);
+        }
+        return $this;
+    }
+
+    public function hasTag(BaseObject $tag) : bool
+    {
+        return $this->tags->contains($tag);
     }
 }
