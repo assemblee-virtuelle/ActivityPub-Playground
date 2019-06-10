@@ -4,6 +4,7 @@ namespace AV\ActivityPubBundle\Entity;
 
 use AV\ActivityPubBundle\DbType\ActorType;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -64,23 +65,23 @@ class Actor extends BaseObject
         $this->controllingActors = new ArrayCollection();
     }
 
-    public function getUsername()
+    public function getUsername() : string
     {
         return $this->username;
     }
 
-    public function setUsername($username)
+    public function setUsername(string $username) : self
     {
         $this->username = $username;
         return $this;
     }
 
-    public function getFollowers()
+    public function getFollowers() : Collection
     {
         return $this->followers;
     }
 
-    public function addFollower(Actor $actor)
+    public function addFollower(Actor $actor) : self
     {
         if (!$this->followers->contains($actor)) {
             $actor->addFollowing($this);
@@ -89,7 +90,7 @@ class Actor extends BaseObject
         return $this;
     }
 
-    public function removeFollower(Actor $actor)
+    public function removeFollower(Actor $actor) : self
     {
         if ($this->followers->contains($actor)) {
             $actor->removeFollowing($this);
@@ -98,12 +99,12 @@ class Actor extends BaseObject
         return $this;
     }
 
-    public function getFollowing()
+    public function getFollowing() : Collection
     {
         return $this->following;
     }
 
-    public function addFollowing(Actor $actor)
+    public function addFollowing(Actor $actor) : self
     {
         if (!$this->following->contains($actor)) {
             $this->following[] = $actor;
@@ -111,7 +112,7 @@ class Actor extends BaseObject
         return $this;
     }
 
-    public function removeFollowing(Actor $actor)
+    public function removeFollowing(Actor $actor) : self
     {
         if ($this->following->contains($actor)) {
             $this->following->removeElement($actor);
@@ -119,12 +120,12 @@ class Actor extends BaseObject
         return $this;
     }
 
-    public function getOutboxActivities()
+    public function getOutboxActivities() : Collection
     {
         return $this->outboxActivities;
     }
 
-    public function addOutboxActivity(Activity $activity)
+    public function addOutboxActivity(Activity $activity) : self
     {
         if (!$this->outboxActivities->contains($activity)) {
             $this->outboxActivities[] = $activity;
@@ -132,7 +133,7 @@ class Actor extends BaseObject
         return $this;
     }
 
-    public function removeOutboxActivity(Activity $activity)
+    public function removeOutboxActivity(Activity $activity) : self
     {
         if ($this->outboxActivities->contains($activity)) {
             $this->outboxActivities->removeElement($activity);
@@ -140,12 +141,12 @@ class Actor extends BaseObject
         return $this;
     }
 
-    public function getInboxActivities()
+    public function getInboxActivities() : Collection
     {
         return $this->inboxActivities;
     }
 
-    public function addInboxActivity(Activity $activity)
+    public function addInboxActivity(Activity $activity) : self
     {
         if (!$this->inboxActivities->contains($activity)) {
             $this->inboxActivities[] = $activity;
@@ -153,7 +154,7 @@ class Actor extends BaseObject
         return $this;
     }
 
-    public function removeInboxActivity(Activity $activity)
+    public function removeInboxActivity(Activity $activity) : self
     {
         if ($this->inboxActivities->contains($activity)) {
             $this->inboxActivities->removeElement($activity);
@@ -161,12 +162,12 @@ class Actor extends BaseObject
         return $this;
     }
 
-    public function getControllingActors()
+    public function getControllingActors() : Collection
     {
         return $this->controllingActors;
     }
 
-    public function addControllingActor(Actor $actor)
+    public function addControllingActor(Actor $actor) : self
     {
         if (!$this->hasControllingActor($actor)) {
             $this->controllingActors[] = $actor;
@@ -174,7 +175,7 @@ class Actor extends BaseObject
         return $this;
     }
 
-    public function removeControllingActor(Actor $actor)
+    public function removeControllingActor(Actor $actor) : self
     {
         if ($this->hasControllingActor($actor)) {
             $this->controllingActors->removeElement($actor);
@@ -182,7 +183,7 @@ class Actor extends BaseObject
         return $this;
     }
 
-    public function hasControllingActor(Actor $actor)
+    public function hasControllingActor(Actor $actor) : bool
     {
         return $this->controllingActors->contains($actor);
     }

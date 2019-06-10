@@ -3,6 +3,7 @@
 namespace AV\ActivityPubBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -41,23 +42,23 @@ class Activity extends BaseObject
         $this->receivingActors = new ArrayCollection();
     }
 
-    public function getActor()
+    public function getActor() : ?Actor
     {
         return $this->actor;
     }
 
-    public function setActor($actor)
+    public function setActor(Actor $actor) : self
     {
         $this->actor = $actor;
         return $this;
     }
 
-    public function getReceivingActors()
+    public function getReceivingActors() : Collection
     {
         return $this->receivingActors;
     }
 
-    public function addReceivingActor(Actor $actor)
+    public function addReceivingActor(Actor $actor) : self
     {
         if (!$this->receivingActors->contains($actor)) {
             $actor->addInboxActivity($this);
@@ -66,7 +67,7 @@ class Activity extends BaseObject
         return $this;
     }
 
-    public function removeActorInbox(Actor $actor)
+    public function removeActorInbox(Actor $actor) : self
     {
         if ($this->receivingActors->contains($actor)) {
             $this->receivingActors->removeElement($actor);
@@ -74,23 +75,23 @@ class Activity extends BaseObject
         return $this;
     }
 
-    public function getIsPublic()
+    public function getIsPublic() : bool
     {
         return $this->isPublic;
     }
 
-    public function setIsPublic($isPublic)
+    public function setIsPublic($isPublic) : self
     {
         $this->isPublic = $isPublic;
         return $this;
     }
 
-    public function getObject()
+    public function getObject() : ?BaseObject
     {
         return $this->object;
     }
 
-    public function setObject($object)
+    public function setObject(?BaseObject $object) : self
     {
         $this->object = $object;
         return $this;

@@ -49,7 +49,7 @@ class CasController extends AbstractController
 
                 $user = new User($actor);
                 $user
-                    ->setId($attr['id'])
+                    ->setId($attr['uid'])
                     ->setUuid($attr['uuid'])
                     ->setEmail($attr['mail'])
                     ->setPassword($attr['pass']);

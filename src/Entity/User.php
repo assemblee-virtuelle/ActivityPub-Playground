@@ -7,7 +7,7 @@ use AV\ActivityPubBundle\Entity\ActorUser;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @ORM\Table(name="user")
  */
 class User extends ActorUser
