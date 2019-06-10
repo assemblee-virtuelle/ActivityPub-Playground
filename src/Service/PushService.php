@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\Device;
 use App\Entity\User;
 use App\Type\NotificationType;
+use AV\ActivityPubBundle\Entity\Actor;
 use Doctrine\ORM\EntityManagerInterface;
 use ExponentPhpSDK\Expo;
 
@@ -50,8 +51,22 @@ class PushService
         }
     }
 
+    // Notify all devices connected to the actor
+    public function notifyActor(Actor $actor, string $message, array $data = [])
+    {
+        $userRepo = $this->em->getRepository(User::class);
+
+        /** @var User $user */
+        $user = $userRepo->findOneBy(['actor' => $actor]);
+
+        // If an user is attached to this actor
+        if( $user ) {
+            $this->notifyUser($user, $message, $data);
+        }
+    }
+
     // Notify all devices connected to the user
-    public function notifyUser(User $user, string $message, array $data)
+    public function notifyUser(User $user, string $message, array $data = [])
     {
         $deviceRepo = $this->em->getRepository(Device::class);
 

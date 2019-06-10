@@ -8,9 +8,11 @@ use AV\ActivityPubBundle\DbType\ActivityType;
 use AV\ActivityPubBundle\Entity\Activity;
 use AV\ActivityPubBundle\Entity\Actor;
 use AV\ActivityPubBundle\Entity\BaseObject;
+use AV\ActivityPubBundle\Event\ActivityEvent;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
@@ -25,14 +27,17 @@ class ActivityPubService
 
     protected $parser;
 
+    protected $dispatcher;
+
     public const PUBLIC_POST_URI = 'https://www.w3.org/ns/activitystreams#Public';
 
-    public function __construct(string $serverBaseUrl, EntityManagerInterface $em, AuthorizationCheckerInterface $authorizationChecker, ActivityStreamsParser $parser)
+    public function __construct(string $serverBaseUrl, EntityManagerInterface $em, AuthorizationCheckerInterface $authorizationChecker, ActivityStreamsParser $parser, EventDispatcherInterface $dispatcher)
     {
         $this->em = $em;
         $this->authorizationChecker = $authorizationChecker;
         $this->serverBaseUrl = $serverBaseUrl;
         $this->parser = $parser;
+        $this->dispatcher = $dispatcher;
     }
 
     public function handleActivity(array $json, Actor $loggedActor) : Activity
@@ -87,10 +92,11 @@ class ActivityPubService
                 throw new BadRequestHttpException("Unhandled activity : $activityType");
         }
 
-        // TODO: send an ActivityEvent
-
         $this->em->persist($activity);
         $this->em->flush();
+
+        $activityEvent = new ActivityEvent($activity);
+        $this->dispatcher->dispatch(ActivityEvent::NAME, $activityEvent);
 
         return $activity;
     }
@@ -122,6 +128,9 @@ class ActivityPubService
                 }
             }
         }
+
+        // TODO put this in an event listener
+        $activity->setSummary($activity->getActor()->getName() . ' vient de poster une actualité');
     }
 
     protected function handleFollow(Activity $activity, string $objectJson)
@@ -129,6 +138,9 @@ class ActivityPubService
         $actorToFollow = $this->getObjectFromUri($objectJson);
         $actorToFollow->addFollower($activity->getActor());
         $activity->setObject($activity->getActor());
+
+        // TODO put this in an event listener
+        $activity->setSummary($activity->getActor()->getName() . ' suit maintenant '  . $actorToFollow->getName());
     }
 
     public function getObjectFromUri(string $uri) : ?BaseObject

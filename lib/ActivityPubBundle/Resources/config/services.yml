@@ -1,4 +1,5 @@
 services:
+
   activity_pub.service:
     class: AV\ActivityPubBundle\Service\ActivityPubService
     public: true
@@ -7,6 +8,10 @@ services:
       - '@doctrine.orm.entity_manager'
       - '@security.authorization_checker'
       - '@activity_pub.parser'
+      - '@event_dispatcher'
+
+  AV\ActivityPubBundle\Service\ActivityPubService:
+    alias: activity_pub.service
 
   activity_pub.parser:
     class: AV\ActivityPubBundle\Service\ActivityStreamsParser
