@@ -87,6 +87,11 @@ class BaseObject
      */
     protected $tags;
 
+    /**
+     * @ORM\OneToOne(targetEntity="BaseObject", cascade={"persist", "remove"})
+     */
+    protected $attachment;
+
     public function __construct()
     {
         $this->tags = new ArrayCollection();
@@ -243,5 +248,16 @@ class BaseObject
     public function hasTag(BaseObject $tag) : bool
     {
         return $this->tags->contains($tag);
+    }
+
+    public function getAttachment() : ?BaseObject
+    {
+        return $this->attachment;
+    }
+
+    public function setAttachment(?BaseObject $attachment) : self
+    {
+        $this->attachment = $attachment;
+        return $this;
     }
 }

@@ -6,6 +6,8 @@ class ObjectType extends EnumType
 {
     protected $name = 'object_type';
 
+    public const DOCUMENT = 'Document';
+
     public const NOTE = 'Note';
 
     public const PLACE = 'Place';

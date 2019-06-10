@@ -59,6 +59,12 @@ class ActivityStreamsParser
             $object->setLocation($location);
         }
 
+        if( array_key_exists('attachment', $json) ) {
+            $attachment = new BaseObject();
+            $this->parseObject($attachment, $json['attachment']);
+            $object->setAttachment($attachment);
+        }
+
         if( array_key_exists('tag', $json) ) {
             foreach( $json['tag'] as $tagValue ) {
                 if( is_string($tagValue) ) {
