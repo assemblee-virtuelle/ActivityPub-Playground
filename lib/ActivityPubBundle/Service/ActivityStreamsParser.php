@@ -8,6 +8,7 @@ use AV\ActivityPubBundle\DbType\ObjectType;
 use AV\ActivityPubBundle\Entity\Activity;
 use AV\ActivityPubBundle\Entity\Actor;
 use AV\ActivityPubBundle\Entity\BaseObject;
+use AV\ActivityPubBundle\Entity\Place;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -27,7 +28,7 @@ class ActivityStreamsParser
             $this->parseActivity($activity, $json);
             return $activity;
         } elseif ( ObjectType::includes($json['type']) ) {
-            $object = new BaseObject();
+            $object = $json['type'] === ObjectType::PLACE ? new Place() : new BaseObject();
             $this->parseObject($object, $json);
             return $object;
         } elseif ( ActorType::includes($json['type']) ) {
@@ -54,14 +55,12 @@ class ActivityStreamsParser
         $this->parseScalarValues($object, $json);
 
         if( array_key_exists('location', $json) ) {
-            $location = new BaseObject();
-            $this->parseObject($location, $json['location']);
+            $location = $this->parse($json['location']);
             $object->setLocation($location);
         }
 
         if( array_key_exists('attachment', $json) ) {
-            $attachment = new BaseObject();
-            $this->parseObject($attachment, $json['attachment']);
+            $attachment = $this->parse($json['attachment']);
             $object->setAttachment($attachment);
         }
 
@@ -74,8 +73,7 @@ class ActivityStreamsParser
                         $tag = $this->em->getRepository(BaseObject::class)
                             ->findOneBy(['type' => ObjectType::TOPIC ,'name' => $tagValue['name']]);
                         if( !$tag ) {
-                            $tag = new BaseObject();
-                            $this->parseObject($tag, $tagValue);
+                            $tag = $this->parse($tagValue);
                         }
                     } else {
                         throw new BadRequestHttpException('Bad tag type : ' . $tagValue['type']);
@@ -102,6 +100,8 @@ class ActivityStreamsParser
             switch($fieldType) {
                 case "string":
                 case "text":
+                case "float":
+                case "integer":
                     $object->set($fieldName, $json[$fieldName]);
                     break;
 

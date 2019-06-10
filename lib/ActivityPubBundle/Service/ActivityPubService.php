@@ -95,8 +95,9 @@ class ActivityPubService
 
     protected function handleCreate(Activity $activity, array $objectJson)
     {
-        if ( ActorType::includes($activity->getType()) ) {
-            if( !in_array($activity->getType(), Actor::CONTROLLABLE_ACTORS) )
+        // If we are creating an actor, set the logged user as the controlling actor
+        if ( ActorType::includes($activity->getObject()->getType()) ) {
+            if( !in_array($activity->getObject()->getType(), Actor::CONTROLLABLE_ACTORS) )
                 throw new BadRequestHttpException("This type of actor cannot be created");
             $activity->getObject()->addControllingActor($activity->getActor());
         }
