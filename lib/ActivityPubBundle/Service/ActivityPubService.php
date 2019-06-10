@@ -57,7 +57,9 @@ class ActivityPubService
         $activity = $this->parser->parse($json);
 
         if( array_key_exists('actor', $json) ) {
-            $activity->setActor($this->getActorFromUri($json['actor']));
+            $postingActor = $this->getObjectFromUri($json['actor']);
+            if( !$postingActor ) throw new BadRequestHttpException('Unknown actor : ' . $json['actor']);
+            $activity->setActor($postingActor);
 
             // Make sure the logged actor has the right to post as the posting actor
             if( !$this->authorizationChecker->isGranted($activityType, $activity) ) {
@@ -113,7 +115,7 @@ class ActivityPubService
                     foreach( $followers as $follower ) {
                         $activity->addReceivingActor($follower);
                     }
-                } elseif ( $actor = $this->getActorFromUri($actorUri) ) {
+                } elseif ( $actor = $this->getObjectFromUri($actorUri) ) {
                     $activity->addReceivingActor($actor);
                 } else {
                     throw new BadRequestHttpException("Unknown actor URI : $actorUri");
@@ -124,19 +126,32 @@ class ActivityPubService
 
     protected function handleFollow(Activity $activity, string $objectJson)
     {
-        $actorToFollow = $this->getActorFromUri($objectJson);
+        $actorToFollow = $this->getObjectFromUri($objectJson);
         $actorToFollow->addFollower($activity->getActor());
         $activity->setObject($activity->getActor());
     }
 
-    public function getActorFromUri(string $uri) : Actor
+    public function getObjectFromUri(string $uri) : ?BaseObject
     {
-        preg_match('/\/actor\/(\w*)\//', $uri, $matches );
+        preg_match('/\/(actor|object|activity)\/([^\/]*)/', $uri, $matches );
         if( !$matches ) return null;
-        /** @var Actor $actor */
-        $actor = $this->em->getRepository(Actor::class)
-            ->findOneBy(['username' => $matches[1]]);
-        return $actor;
+
+        switch($matches[1]) {
+            case "object":
+                return $this->em->getRepository(BaseObject::class)
+                    ->findOneBy(['id' => $matches[2]]);
+
+            case "actor":
+                return $this->em->getRepository(Actor::class)
+                    ->findOneBy(['username' => $matches[2]]);
+
+            case "activity":
+                return $this->em->getRepository(Activity::class)
+                    ->findOneBy(['id' => $matches[2]]);
+
+            default:
+                return null;
+        }
     }
 
     public function getFollowersFromUri(string $uri) : Collection
@@ -156,6 +171,7 @@ class ActivityPubService
                 break;
 
             case 'AV\ActivityPubBundle\Entity\BaseObject':
+            case 'AV\ActivityPubBundle\Entity\Place':
                 return $this->serverBaseUrl . '/object/' . $object->getId();
                 break;
 

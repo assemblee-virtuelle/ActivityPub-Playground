@@ -33,10 +33,10 @@ class BaseObject
     protected $type;
 
     /**
-     * Each Activity has one or zero Object
-     * @ORM\OneToOne(targetEntity="Activity", mappedBy="object")
+     * Each object may be linked to one or more activity
+     * @ORM\OneToMany(targetEntity="Activity", mappedBy="object")
      */
-    private $createActivity;
+    private $activities;
 
     /**
      * @ORM\Column(type="string", nullable=true)
@@ -74,7 +74,7 @@ class BaseObject
     protected $updated;
 
     /**
-     * @ORM\OneToOne(targetEntity="BaseObject", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity="Place", cascade={"persist", "remove"})
      */
     protected $location;
 
@@ -95,6 +95,7 @@ class BaseObject
 
     public function __construct()
     {
+        $this->activities = new ArrayCollection();
         $this->tags = new ArrayCollection();
     }
 
@@ -132,9 +133,30 @@ class BaseObject
         return $this;
     }
 
-    public function getCreateActivity() : Activity
+    public function getActivities() : Collection
     {
-        return $this->createActivity;
+        return $this->activities;
+    }
+
+    public function addActivity(Activity $activity) : self
+    {
+        if (!$this->activities->contains($activity)) {
+            $this->activities[] = $activity;
+        }
+        return $this;
+    }
+
+    public function removeActivity(Activity $activity) : self
+    {
+        if ($this->activities->contains($activity)) {
+            $this->activities->removeElement($activity);
+        }
+        return $this;
+    }
+
+    public function hasActivity(Activity $activity) : bool
+    {
+        return $this->activities->contains($activity);
     }
 
     public function getName() : ?string
@@ -214,12 +236,12 @@ class BaseObject
         return $this;
     }
 
-    public function getLocation() : ?BaseObject
+    public function getLocation() : ?Place
     {
         return $this->location;
     }
 
-    public function setLocation(?BaseObject $location) : self
+    public function setLocation(?Place $location) : self
     {
         $this->location = $location;
         return $this;

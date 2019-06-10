@@ -21,22 +21,28 @@ class ActivityStreamsParser
         $this->em = $em;
     }
 
-    public function parse(array $json) : BaseObject
+    public function parse($data) : ?BaseObject
     {
-        if( ActivityType::includes($json['type']) ) {
-            $activity = new Activity();
-            $this->parseActivity($activity, $json);
-            return $activity;
-        } elseif ( ObjectType::includes($json['type']) ) {
-            $object = $json['type'] === ObjectType::PLACE ? new Place() : new BaseObject();
-            $this->parseObject($object, $json);
-            return $object;
-        } elseif ( ActorType::includes($json['type']) ) {
-            $actor = new Actor();
-            $this->parseActor($actor, $json);
-            return $actor;
+        if( is_string($data) ) {
+            return $this->getObjectFromUri($data);
+        } else if( is_array($data) ) {
+            if( ActivityType::includes($data['type']) ) {
+                $activity = new Activity();
+                $this->parseActivity($activity, $data);
+                return $activity;
+            } elseif ( ObjectType::includes($data['type']) ) {
+                $object = $data['type'] === ObjectType::PLACE ? new Place() : new BaseObject();
+                $this->parseObject($object, $data);
+                return $object;
+            } elseif ( ActorType::includes($data['type']) ) {
+                $actor = new Actor();
+                $this->parseActor($actor, $data);
+                return $actor;
+            } else {
+                throw new BadRequestHttpException("Unhandled object : {$data['type']}");
+            }
         } else {
-            throw new BadRequestHttpException("Unhandled object : {$json['type']}");
+            throw new BadRequestHttpException("Can only parse URL or object");
         }
     }
 
@@ -127,13 +133,26 @@ class ActivityStreamsParser
         return $fieldTypes;
     }
 
-    public function getObjectFromUri(string $uri) : BaseObject
+    public function getObjectFromUri(string $uri) : ?BaseObject
     {
-        preg_match('/\/object\/(\d*)\//', $uri, $matches );
+        preg_match('/\/(actor|object|activity)\/([^\/]*)/', $uri, $matches );
         if( !$matches ) return null;
-        /** @var BaseObject $object */
-        $object = $this->em->getRepository(BaseObject::class)
-            ->findOneBy(['id' => $matches[1]]);
-        return $object;
+
+        switch($matches[1]) {
+            case "object":
+                return $this->em->getRepository(BaseObject::class)
+                    ->findOneBy(['id' => $matches[2]]);
+
+            case "actor":
+                return $this->em->getRepository(Actor::class)
+                    ->findOneBy(['username' => $matches[2]]);
+
+            case "activity":
+                return $this->em->getRepository(Activity::class)
+                    ->findOneBy(['id' => $matches[2]]);
+
+            default:
+                return null;
+        }
     }
 }

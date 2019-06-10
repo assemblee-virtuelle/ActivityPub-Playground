@@ -29,8 +29,8 @@ class Activity extends BaseObject
     private $isPublic;
 
     /**
-     * Each Activity has one or zero Object
-     * @ORM\OneToOne(targetEntity="BaseObject", inversedBy="createActivity", cascade={"persist"})
+     * Each object may be linked to one or more activity
+     * @ORM\ManyToOne(targetEntity="BaseObject", inversedBy="activities", cascade={"persist"})
      */
     private $object;
 

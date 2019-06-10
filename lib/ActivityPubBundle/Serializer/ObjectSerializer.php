@@ -2,7 +2,9 @@
 
 namespace AV\ActivityPubBundle\Serializer;
 
+use AV\ActivityPubBundle\DbType\ObjectType;
 use AV\ActivityPubBundle\Entity\BaseObject;
+use AV\ActivityPubBundle\Entity\Place;
 use AV\ActivityPubBundle\Service\ActivityPubService;
 
 class ObjectSerializer extends BaseSerializer
@@ -25,7 +27,7 @@ class ObjectSerializer extends BaseSerializer
      *
      * @return array
      */
-    protected function getDataToSerialize($object): ?array
+    public function getDataToSerialize($object): ?array
     {
         $this->ensureType($object, BaseObject::class);
 
@@ -45,6 +47,14 @@ class ObjectSerializer extends BaseSerializer
             "location" => $this->serialize($object->getLocation()),
             "tag" => $object->getTags()->map(function( $tag ) { return $this->serialize($tag); })
         ];
+
+        if( $object->getType() === ObjectType::PLACE ) {
+            /** @var Place $object */
+            $result = array_merge($result, [
+                "latitude" => $object->getLatitude(),
+                "longitude" => $object->getLongitude(),
+            ]);
+        }
 
         return $result;
     }

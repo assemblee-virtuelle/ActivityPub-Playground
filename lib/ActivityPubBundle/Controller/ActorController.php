@@ -56,4 +56,52 @@ class ActorController extends BaseController
 
         return $this->json(new Serializable($collection, $collectionSerializer));
     }
+
+    /**
+     * @Route("/actor/{username}/followers", name="actor_followers", methods={"GET"})
+     */
+    public function actorFollowers(string $username)
+    {
+        $em = $this->getDoctrine()->getManager();
+        /** @var ActivityPubService $activityPubService */
+        $activityPubService = $this->container->get('activity_pub.service');
+        /** @var CollectionSerializer $collectionSerializer */
+        $collectionSerializer = $this->container->get('activity_pub.serializer.collection');
+
+        /** @var Actor $actor */
+        $actor = $em->getRepository(Actor::class)->findOneBy(['username' => $username]);
+        if( !$actor ) throw new NotFoundHttpException();
+
+        $actorUri = $activityPubService->getObjectUri($actor);
+
+        $followers = $actor->getFollowers();
+
+        $collection = new OrderedCollection($actorUri . "/followers", $followers);
+
+        return $this->json(new Serializable($collection, $collectionSerializer));
+    }
+
+    /**
+     * @Route("/actor/{username}/following", name="actor_following", methods={"GET"})
+     */
+    public function actorFollowing(string $username)
+    {
+        $em = $this->getDoctrine()->getManager();
+        /** @var ActivityPubService $activityPubService */
+        $activityPubService = $this->container->get('activity_pub.service');
+        /** @var CollectionSerializer $collectionSerializer */
+        $collectionSerializer = $this->container->get('activity_pub.serializer.collection');
+
+        /** @var Actor $actor */
+        $actor = $em->getRepository(Actor::class)->findOneBy(['username' => $username]);
+        if( !$actor ) throw new NotFoundHttpException();
+
+        $actorUri = $activityPubService->getObjectUri($actor);
+
+        $followers = $actor->getFollowing();
+
+        $collection = new OrderedCollection($actorUri . "/following", $followers);
+
+        return $this->json(new Serializable($collection, $collectionSerializer));
+    }
 }
