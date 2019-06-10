@@ -19,7 +19,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class OutboxController extends BaseController
 {
     /**
-     * @Route("/actor/{username}/outbox", name="actor_outbox", methods={"POST"})
+     * @Route("/actor/{username}/outbox", name="post_actor_outbox", methods={"POST"})
      */
     public function postActivity(string $username, Request $request)
     {
@@ -43,7 +43,7 @@ class OutboxController extends BaseController
     }
 
     /**
-     * @Route("/actor/{username}/outbox", name="actor_outbox", methods={"GET"})
+     * @Route("/actor/{username}/outbox", name="get_actor_outbox", methods={"GET"})
      */
     public function readOutbox(string $username)
     {
