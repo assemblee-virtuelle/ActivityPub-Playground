@@ -13,11 +13,15 @@ class ActorSerializer extends BaseSerializer
     /** @var ActivityPubService $activityPubService */
     private $activityPubService;
 
-    public function __construct($flavour, ActivityPubService $activityPubService)
+    /** @var ObjectSerializer $objectSerializer */
+    private $objectSerializer;
+
+    public function __construct($flavour, ActivityPubService $activityPubService, ObjectSerializer $objectSerializer)
     {
         $this->ensureFlavour($flavour, [self::FLAVOUR_MEDIUM, self::FLAVOUR_FULL]);
         $this->flavour = $flavour;
         $this->activityPubService = $activityPubService;
+        $this->objectSerializer = $objectSerializer;
     }
 
     /**
@@ -31,13 +35,12 @@ class ActorSerializer extends BaseSerializer
 
         $actorUri = $this->activityPubService->getObjectUri($actor);
 
-        $result = [
+        $result = array_merge([
             "@context" => "https://www.w3.org/ns/activitystreams",
             "id" => $actorUri,
             "type" => $actor->getType(),
-            "preferredUsername" => $actor->getUsername(),
-            "summary" => $actor->getSummary()
-        ];
+            "preferredUsername" => $actor->getUsername()
+        ], $this->objectSerializer->serialize($actor));
 
         if ($this->flavour === self::FLAVOUR_FULL) {
             $result = array_merge($result, [

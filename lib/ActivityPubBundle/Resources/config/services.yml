@@ -36,6 +36,7 @@ services:
     arguments:
       - 'medium'
       - '@activity_pub.service'
+      - '@activity_pub.serializer.object.medium'
 
   activity_pub.serializer.actor.full:
     class: AV\ActivityPubBundle\Serializer\ActorSerializer
@@ -43,6 +44,7 @@ services:
     arguments:
       - 'full'
       - '@activity_pub.service'
+      - '@activity_pub.serializer.object.medium'
 
   activity_pub.serializer.collection:
     class: AV\ActivityPubBundle\Serializer\CollectionSerializer
