@@ -22,8 +22,8 @@ class BaseObject
 {
     /**
      * @ORM\Id
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\Column(name="id", type="guid")
+     * @ORM\GeneratedValue(strategy="UUID")
      */
     protected $id;
 
@@ -111,15 +111,9 @@ class BaseObject
         return $this;
     }
 
-    public function getId() : ?int
+    public function getId() : ?string
     {
         return $this->id;
-    }
-
-    public function setId(int $id) : self
-    {
-        $this->id = $id;
-        return $this;
     }
 
     public function getType() : string

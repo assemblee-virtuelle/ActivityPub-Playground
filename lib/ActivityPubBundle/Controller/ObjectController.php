@@ -12,9 +12,9 @@ use Symfony\Component\Routing\Annotation\Route;
 class ObjectController extends BaseController
 {
     /**
-     * @Route("/object/{id}", name="object_read", methods={"GET"})
+     * @Route("/object/{id}", name="object_get", methods={"GET"})
      */
-    public function readObject(int $id)
+    public function getObject(string $id)
     {
         $em = $this->getDoctrine()->getManager();
         /** @var ObjectSerializer $objectSerializer */

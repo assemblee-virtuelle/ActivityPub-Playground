@@ -12,9 +12,9 @@ use Symfony\Component\Routing\Annotation\Route;
 class ActivityController extends BaseController
 {
     /**
-     * @Route("/activity/{id}", name="activity_read", methods={"GET"})
+     * @Route("/activity/{id}", name="activity_get", methods={"GET"})
      */
-    public function readActivity(int $id)
+    public function getActivity(string $id)
     {
         $em = $this->getDoctrine()->getManager();
         /** @var ObjectSerializer $objectSerializer */
