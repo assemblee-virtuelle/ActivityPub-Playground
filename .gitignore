@@ -19,6 +19,7 @@
 
 .idea
 docker/logs
+docker/mysql
 public/cas-debug.log
 
 ###> lexik/jwt-authentication-bundle ###

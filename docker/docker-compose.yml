@@ -36,14 +36,8 @@ services:
             MYSQL_DATABASE: symfony
             MYSQL_USER: symfony
             MYSQL_PASSWORD: symfony
-
-    elk:
-        image: willdurand/elk
-        container_name: activitypub_elk
-        ports:
-            - "81:80"
+        # Comment the volumes if you don't want to persist the MySQL data locally
+        # On Mac and Windows, this can vastly improve the performances
         volumes:
-            - ./elk/logstash:/etc/logstash:cached
-            - ./elk/logstash/patterns:/opt/logstash/patterns:cached
-            - ./logs/symfony:/var/www/symfony/var/log:cached
-            - ./logs/nginx:/var/log/nginx:cached
+            - ./mysql:/var/lib/mysql:delegated
+
