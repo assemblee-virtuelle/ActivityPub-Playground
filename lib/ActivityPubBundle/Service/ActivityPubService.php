@@ -40,7 +40,7 @@ class ActivityPubService
         $this->dispatcher = $dispatcher;
     }
 
-    public function handleActivity(array $json, Actor $loggedActor) : Activity
+    public function handleActivity(array $json, Actor $loggedActor, bool $massImport = false) : Activity
     {
         if( $json['@context'] !== 'https://www.w3.org/ns/activitystreams' ) {
             throw new BadRequestHttpException("Only ActivityStreams objects are allowed");
@@ -67,7 +67,8 @@ class ActivityPubService
             $activity->setActor($postingActor);
 
             // Make sure the logged actor has the right to post as the posting actor
-            if( !$this->authorizationChecker->isGranted($activityType, $activity) ) {
+            // TODO use something else than a voter so that someone else than the logged actor can post
+            if( !$massImport && !$this->authorizationChecker->isGranted($activityType, $activity) ) {
                 throw new UnauthorizedHttpException("You cannot post as {$activity->getActor()->getUsername()}");
             }
         } else {
@@ -95,8 +96,10 @@ class ActivityPubService
         $this->em->persist($activity);
         $this->em->flush();
 
-        $activityEvent = new ActivityEvent($activity);
-        $this->dispatcher->dispatch(ActivityEvent::NAME, $activityEvent);
+        if( !$massImport ) {
+            $activityEvent = new ActivityEvent($activity);
+            $this->dispatcher->dispatch(ActivityEvent::NAME, $activityEvent);
+        }
 
         return $activity;
     }
