@@ -51,20 +51,19 @@ class ImportCommand extends Command
         $helper = $this->getHelper('question');
         $question = new ChoiceQuestion(
             'What JSON file do you want to import ?',
-            $filenames,
-            'payscreillois.json'
+            $filenames
         );
         $question->setErrorMessage('Filename %s is invalid.');
         $filename = $helper->ask($input, $output, $question);
 
-        $selectedFile = $finder->files()->in('imports')->name($filename)->getIterator()->current();
-        $jsonActivities = json_decode($selectedFile->getContents(), true);
+        $selectedFile = __DIR__ . "/../../imports/" . $filename;
+        $jsonActivities = json_decode(file_get_contents($selectedFile), true);
 
         /*
          * ACTOR
          */
 
-        $question = new Question('Please enter the username of the actor who will import these files : ', '60payscreillois');
+        $question = new Question('Please enter the username of the actor who will import these files : ');
         $question->setValidator(function ($username) {
             $actor = $this->em->getRepository(Actor::class)->findOneBy(['username' => $username]);
             if (!$actor) throw new \RuntimeException('No actor found with this username');
