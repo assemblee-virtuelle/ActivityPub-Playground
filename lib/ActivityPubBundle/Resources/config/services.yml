@@ -4,7 +4,7 @@ services:
     class: AV\ActivityPubBundle\Service\ActivityPubService
     public: true
     arguments:
-      - 'http://localhost'
+      - '%env(SERVER_BASE_URL)%' # TODO use a bundle config https://symfony.com/doc/current/bundles/configuration.html
       - '@doctrine.orm.entity_manager'
       - '@security.authorization_checker'
       - '@activity_pub.parser'
