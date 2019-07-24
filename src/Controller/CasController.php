@@ -20,7 +20,7 @@ class CasController extends AbstractController
     {
         // $redirectUrl = $request->query->get('redirectUrl');
         // if( !$redirectUrl ) throw new \Exception('No redirectUrl found');
-        $redirectUrl = 'exp://192.168.1.96:19000';
+        $redirectUrl = 'exp://192.168.42.195:19000';
 
         // on vide les cookie pour la premiere connexion
         if (!isset($_GET['ticket'])) {
