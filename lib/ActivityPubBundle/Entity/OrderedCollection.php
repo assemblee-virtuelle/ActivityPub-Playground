@@ -16,10 +16,16 @@ class OrderedCollection
      */
     protected $objects;
 
-    public function __construct(string $id, Collection $objects)
+    /**
+     * @var array $additional
+     */
+    private $additional;
+
+    public function __construct(string $id, Collection $objects, array $additional = [])
     {
         $this->id = $id;
         $this->objects = $objects;
+        $this->additional = $additional;
     }
 
     public function getId()
@@ -30,5 +36,10 @@ class OrderedCollection
     public function getObjects()
     {
         return $this->objects;
+    }
+
+    public function getAdditional()
+    {
+        return $this->additional;
     }
 }

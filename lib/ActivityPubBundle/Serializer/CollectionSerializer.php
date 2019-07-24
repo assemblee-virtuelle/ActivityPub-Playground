@@ -38,14 +38,15 @@ class CollectionSerializer extends BaseSerializer
             "id" => $collection->getId(),
             "type" => "OrderedCollection",
             "totalItems" => count($collection->getObjects()),
-            "orderedItems" => $collection->getObjects()->map(function (BaseObject $object) {
+            "orderedItems" => $collection->getObjects()->map(function (BaseObject $object) use ($collection) {
                 if( is_a($object, Activity::class) ) {
-                    return( $this->activitySerializer->serialize($object) );
+                    $serialized = $this->activitySerializer->serialize($object);
                 } else if( is_a($object, BaseObject::class) ) {
-                    return( $this->objectSerializer->serialize($object) );
+                    $serialized = $this->objectSerializer->serialize($object);
                 } else {
                     throw new BadRequestHttpException("Cannot serialize object of type" . get_class($object));
                 }
+                return array_merge_recursive($serialized, $collection->getAdditional());
             })
         ];
 

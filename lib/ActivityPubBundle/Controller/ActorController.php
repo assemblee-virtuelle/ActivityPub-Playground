@@ -52,7 +52,7 @@ class ActorController extends BaseController
 
         $createdObjects = $objectRepo->getCreatedObjects($actor);
 
-        $collection = new OrderedCollection($actorUri . "/created", $createdObjects);
+        $collection = new OrderedCollection($actorUri . "/created", $createdObjects, array( 'attributedTo' => $actorUri ));
 
         return $this->json(new Serializable($collection, $collectionSerializer));
     }
