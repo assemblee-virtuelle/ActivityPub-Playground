@@ -18,8 +18,10 @@ class CasController extends AbstractController
      */
     public function loginAction(Request $request, CasService $casService, JWTTokenManagerInterface $JWTTokenManager)
     {
-         $redirectUrl = $request->query->get('redirectUrl');
-         if( !$redirectUrl ) throw new \Exception('No redirectUrl found');
+        // Warning! $redirectUrl must be **double-encoded**, otherwise the $casService->forceAuthentication() method
+        // will decode it and we will lose it on page reload (this route is called twice because of forceAuthentication)
+        $redirectUrl = $request->query->get('redirectUrl');
+        if( !$redirectUrl ) throw new \Exception('No redirectUrl found');
 
         // on vide les cookie pour la premiere connexion
         if (!isset($_GET['ticket'])) {
@@ -82,6 +84,7 @@ class CasController extends AbstractController
             // https://github.com/lexik/LexikJWTAuthenticationBundle/blob/master/Resources/doc/7-manual-token-creation.md
             $token = $JWTTokenManager->create($user);
 
+            // Since the redirectUrl was double-encoded, we must now decode it
             return $this->redirect(urldecode($redirectUrl) . '?token=' . $token);
         }
     }
