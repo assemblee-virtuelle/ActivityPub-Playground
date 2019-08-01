@@ -18,11 +18,8 @@ class CasController extends AbstractController
      */
     public function loginAction(Request $request, CasService $casService, JWTTokenManagerInterface $JWTTokenManager)
     {
-        // $redirectUrl = $request->query->get('redirectUrl');
-        // if( !$redirectUrl ) throw new \Exception('No redirectUrl found');
-        // TODO get redirect URL from query string and then clear the query string
-        // Because it breaks forceAuthentication (which doesn't like the query string)
-        $redirectUrl = 'exp://192.168.42.195:19000';
+         $redirectUrl = $request->query->get('redirectUrl');
+         if( !$redirectUrl ) throw new \Exception('No redirectUrl found');
 
         // on vide les cookie pour la premiere connexion
         if (!isset($_GET['ticket'])) {
