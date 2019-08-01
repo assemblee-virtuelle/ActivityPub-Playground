@@ -8,17 +8,15 @@ use AV\ActivityPubBundle\DbType\ActorType;
 use AV\ActivityPubBundle\Entity\Actor;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class CasController extends AbstractController
 {
     /**
-     * @Route("/cas/login", name="cas_login")
+     * @Route("/cas/login/{redirectUrl}", name="cas_login")
      */
-    public function loginAction(Request $request, CasService $casService, JWTTokenManagerInterface $JWTTokenManager)
+    public function loginAction(string $redirectUrl, CasService $casService, JWTTokenManagerInterface $JWTTokenManager)
     {
-         $redirectUrl = $request->query->get('redirectUrl');
          if( !$redirectUrl ) throw new \Exception('No redirectUrl found');
 
         // on vide les cookie pour la premiere connexion
