@@ -49,9 +49,10 @@ class PushSubscriber implements EventSubscriberInterface
                 $actor,
                 $activity->getSummary(),
                 [
-                    'summary' => $activity->getSummary(),
                     'type' => NotificationType::CREATE_ACTIVITY,
-                    'object_type' => $createdObject->getType(),
+                    'summary' => $activity->getSummary(),
+                    'actorName' => $activity->getActor()->getName(),
+                    'objectType' => $createdObject->getType(),
                     'url' => $this->activityPubService->getObjectUri($createdObject)
                 ]
             );

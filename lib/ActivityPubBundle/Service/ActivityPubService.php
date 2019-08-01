@@ -133,7 +133,7 @@ class ActivityPubService
         }
 
         // TODO put this in an event listener
-        $activity->setSummary($activity->getActor()->getName() . ' vient de poster une actualité');
+        $activity->setSummary('Nouvelle actualité postée par ' . $activity->getActor()->getName());
     }
 
     protected function handleFollow(Activity $activity, string $objectJson)

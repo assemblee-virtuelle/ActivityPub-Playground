@@ -18,6 +18,7 @@ class PushService
     public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
+        // TODO use https://github.com/solvecrew/ExpoNotificationsBundle
         $this->expo = Expo::normalSetup();
     }
 

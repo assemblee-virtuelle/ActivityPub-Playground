@@ -49,7 +49,7 @@ class TestNotificationCommand extends Command
             $this->pushService->notifyDevice(
                 $device,
                 "Une nouvelle action a été ajoutée !",
-                ['type' => NotificationType::NEW_ACTION, 'actionId' => $actionId]
+                ['type' => NotificationType::CREATE_ACTIVITY, 'objectId' => $actionId]
             );
 
             $output->writeln('OK!');
