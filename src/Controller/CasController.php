@@ -80,7 +80,7 @@ class CasController extends AbstractController
             // https://github.com/lexik/LexikJWTAuthenticationBundle/blob/master/Resources/doc/7-manual-token-creation.md
             $token = $JWTTokenManager->create($user);
 
-            return $this->redirect($redirectUrl . '?token=' . $token);
+            return $this->redirect(urldecode($redirectUrl) . '?token=' . $token);
         }
     }
 }
