@@ -85,7 +85,7 @@ class CasController extends AbstractController
             $token = $JWTTokenManager->create($user);
 
             // Since the redirectUrl was double-encoded, we must now decode it
-            return $this->redirect(urldecode($redirectUrl) . '?token=' . $token);
+            return $this->redirect(urldecode($redirectUrl) . '?token=' . $token . "&username=" . $user->getActor()->getUsername());
         }
     }
 }
